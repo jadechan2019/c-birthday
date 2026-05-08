@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CC的生日 | Cosmic Resonance</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400&family=Luxurious+Script&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@18.2.0",
+        "react/jsx-runtime": "https://esm.sh/react@18.2.0/jsx-runtime",
+        "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+        "three": "https://esm.sh/three@0.160.0",
+        "@react-three/fiber": "https://esm.sh/@react-three/fiber@8.15.12?external=react,react-dom,three",
+        "@react-three/drei": "https://esm.sh/@react-three/drei@9.96.1?external=react,react-dom,three,@react-three/fiber",
+        "@react-three/postprocessing": "https://esm.sh/@react-three/postprocessing@2.16.0?external=react,react-dom,three,@react-three/fiber"
+      }
+    }
+  </script>
+
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #010102; overflow: hidden; }
+    #root { width: 100%; height: 100%; }
+    /* 手势光标样式 */
+    .cursor-ring {
+      width: 30px; height: 30px; border: 2px solid #81D8D0; border-radius: 50%;
+      position: absolute; transform: translate(-50%, -50%);
+      pointer-events: none; z-index: 50; transition: width 0.2s, height 0.2s, background-color 0.2s;
+    }
+    .cursor-pinch {
+      width: 15px; height: 15px; background-color: #81D8D0; border: none;
+      box-shadow: 0 0 15px #81D8D0;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <video id="webcam" class="hidden" playsinline autoplay></video>
+
+  <script type="text/babel" data-type="module">
+    import React, { useState, useEffect, useRef, useMemo, Suspense } from 'react';
+    import { createRoot } from 'react-dom/client';
+    import * as THREE from 'three';
+    import { Canvas, useFrame } from '@react-three/fiber';
+    import { OrbitControls, Image as DreiImage } from '@react-three/drei';
+    import { EffectComposer, Bloom, Noise } from '@react-three/postprocessing';
+
+    // ==========================================
+    // 1. 粒子形态变幻着色器 (The Morphing Shader)
+    // ==========================================
+    const PARTICLE_COUNT = 50000;
+    const vertexShader = `
+      attribute vec3 aGalaxyPosition;
+      attribute vec3 aCakePosition;
+      uniform float uProgress;
+      uniform float uTime;
+      varying vec3 vColor;
+
+      void main() {
+        vec3 pos = mix(aCakePosition, aGalaxyPosition, uProgress);
+        // 能量脉冲微动
+        pos.y += sin(uTime * 2.0 + pos.x * 5.0) * 0.05 * uProgress;
+        vec4 mvPosition = modelViewMatrix * instanceMatrix * vec4(pos, 1.0);
+        gl_Position = projectionMatrix * mvPosition;
+        
+        // Tiffany Blue (#81D8D0) 与深青色过渡
+        vColor = mix(vec3(0.11, 0.35, 0.35), vec3(0.5, 0.84, 0.81), uProgress);
+      }
+    `;
+
+    const fragmentShader = `
+      varying vec3 vColor;
+      void main() {
+        // 高亮发光，配合 Bloom Threshold
+        gl_FragColor = vec4(vColor * 2.5, 1.0); 
+      }
+    `;
+
+    function CakeParticles({ isGalaxy }) {
+      const meshRef = useRef(null);
+      const materialRef = useRef(null);
+
+      const { cakePositions, galaxyPositions } = useMemo(() => {
+        const cakePos = new Float32Array(PARTICLE_COUNT * 3);
+        const galaxyPos = new Float32Array(PARTICLE_COUNT * 3);
+        
+        for (let i = 0; i < PARTICLE_COUNT; i++) {
+          const i3 = i * 3;
+          // 蛋糕模型
+          const tier = Math.floor(Math.random() * 7);
+          const radius = (7 - tier) * 0.4 * Math.random();
+          const theta = Math.random() * Math.PI * 2;
+          cakePos[i3] = Math.cos(theta) * radius;
+          cakePos[i3 + 1] = tier * 0.5 - 1.5; 
+          cakePos[i3 + 2] = Math.sin(theta) * radius;
+
+          // 星系模型 (Fibonacci)
+          const goldenAngle = 2.39996323;
+          const r = Math.sqrt(i) * 0.05;
+          const angle = i * goldenAngle;
+          galaxyPos[i3] = Math.cos(angle) * r;
+          galaxyPos[i3 + 1] = (Math.random() - 0.5) * (1.0 / (r + 0.1));
+          galaxyPos[i3 + 2] = Math.sin(angle) * r;
+        }
+        return { cakePositions: cakePos, galaxyPositions: galaxyPos };
+      }, []);
+
+      useFrame((state) => {
+        if (!materialRef.current || !meshRef.current) return;
+        materialRef.current.uniforms.uTime.value = state.clock.elapsedTime;
+        
+        const targetProgress = isGalaxy ? 1.0 : 0.0;
+        materialRef.current.uniforms.uProgress.value += 
+          (targetProgress - materialRef.current.uniforms.uProgress.value) * 0.05;
+          
+        meshRef.current.rotation.y += 0.002; // 星系自转
+      });
+
+      return (
+        <instancedMesh ref={meshRef} args={[null, null, PARTICLE_COUNT]}>
+          <octahedronGeometry args={[0.015, 0]}>
+            <instancedBufferAttribute attach="attributes-aCakePosition" args={[cakePositions, 3]} />
+            <instancedBufferAttribute attach="attributes-aGalaxyPosition" args={[galaxyPositions, 3]} />
+          </octahedronGeometry>
+          <shaderMaterial 
+            ref={materialRef} vertexShader={vertexShader} fragmentShader={fragmentShader}
+            uniforms={{ uProgress: { value: 0 }, uTime: { value: 0 } }}
+            transparent depthWrite={false} blending={THREE.AdditiveBlending}
+          />
+        </instancedMesh>
+      );
+    }
+
+    // ==========================================
+    // 2. 相册画廊 (读取 1.JPG - 8.JPG)
+    // ==========================================
+    function PhotoGallery({ isGalaxy }) {
+      const groupRef = useRef(null);
+      // 映射你仓库里的 8 张照片
+      const images = Array.from({ length: 8 }, (_, i) => `${i + 1}.JPG`);
+
+      useFrame((state) => {
+        if (!groupRef.current) return;
+        // 照片画廊随粒子星系一起缓慢旋转
+        groupRef.current.rotation.y -= 0.001; 
+      });
+
+      if (!isGalaxy) return null;
+
+      return (
+        <group ref={groupRef}>
+          {images.map((url, i) => {
+            const angle = (i / images.length) * Math.PI * 2;
+            const radius = 4;
+            const x = Math.cos(angle) * radius;
+            const z = Math.sin(angle) * radius;
+            return (
+              <DreiImage 
+                key={url} url={url} transparent opacity={0.9}
+                position={[x, (Math.random() - 0.5) * 2, z]}
+                rotation={[0, -angle + Math.PI / 2, 0]}
+                scale={[1.5, 1.5 * 1.33]} // 假设照片大致比例
+              />
+            );
+          })}
+        </group>
+      );
+    }
+
+    // ==========================================
+    // 3. 场景与后期系统
+    // ==========================================
+    function Scene({ isAwake, isGalaxy }) {
+      return (
+        <Canvas camera={{ position: [0, 1, 8], fov: 45 }}>
+          <color attach="background" args={['#010102']} />
+          <ambientLight intensity={isAwake ? 0.8 : 0.1} />
+          
+          <CakeParticles isGalaxy={isGalaxy} />
+          
+          <Suspense fallback={null}>
+            <PhotoGallery isGalaxy={isGalaxy} />
+          </Suspense>
+
+          <EffectComposer disableNormalPass>
+            {/* luminanceThreshold 设为 1.1 保证照片不发光，粒子发光 */}
+            <Bloom luminanceThreshold={1.1} mipmapBlur intensity={isAwake ? 1.5 : 0.0} />
+            <Noise opacity={0.03} />
+          </EffectComposer>
+          
+          <OrbitControls enablePan={false} enableDamping dampingFactor={0.05} />
+        </Canvas>
+      );
+    }
+
+    // ==========================================
+    // 4. 手势控制与全局 App (Gesture & State)
+    // ==========================================
+    function App() {
+      const [isAwake, setIsAwake] = useState(false);
+      const [isGalaxy, setIsGalaxy] = useState(false);
+      const [cursorMode, setCursorMode] = useState('ring'); // ring | pinch
+      const cursorRef = useRef(null);
+
+      useEffect(() => {
+        const videoElement = document.getElementById('webcam');
+        if (!videoElement) return;
+
+        const hands = new Hands({
+          locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+        });
+
+        hands.setOptions({
+          maxNumHands: 1, modelComplexity: 1,
+          minDetectionConfidence: 0.7, minTrackingConfidence: 0.7
+        });
+
+        hands.onResults((results) => {
+          if (!results.multiHandLandmarks || results.multiHandLandmarks.length === 0) return;
+          const lm = results.multiHandLandmarks[0];
+          
+          // 更新屏幕光标位置
+          if (cursorRef.current) {
+            const x = (1 - lm[9].x) * window.innerWidth; // 镜像翻转
+            const y = lm[9].y * window.innerHeight;
+            cursorRef.current.style.left = `${x}px`;
+            cursorRef.current.style.top = `${y}px`;
+          }
+
+          // 手势识别算法
+          const thumbTip = lm[4];
+          const indexTip = lm[8];
+          const middleTip = lm[12];
+          
+          const isFist = (indexTip.y > lm[5].y) && (middleTip.y > lm[9].y);
+          const isOpen = (indexTip.y < lm[5].y) && (middleTip.y < lm[9].y);
+          
+          // 计算拇指和食指距离 (捏合判定)
+          const pinchDist = Math.hypot(thumbTip.x - indexTip.x, thumbTip.y - indexTip.y);
+          
+          if (pinchDist < 0.05) {
+            setCursorMode('pinch');
+          } else {
+            setCursorMode('ring');
+            if (isFist && indexTip.y > 0.7 && !isAwake) setIsAwake(true); // 拉灯开机
+            if (isOpen && isAwake && !isGalaxy) setIsGalaxy(true); // 张开爆破
+            if (isFist && indexTip.y <= 0.7 && isGalaxy) setIsGalaxy(false); // 握拳凝聚
+          }
+        });
+
+        const camera = new Camera(videoElement, {
+          onFrame: async () => { await hands.send({ image: videoElement }); },
+          width: 640, height: 480
+        });
+        camera.start();
+      }, [isAwake, isGalaxy]);
+
+      return (
+        <div className="w-full h-full relative">
+          <Scene isAwake={isAwake} isGalaxy={isGalaxy} />
+          
+          {/* UI 覆盖层 */}
+          <div className="absolute top-10 left-10 pointer-events-none z-10 text-white">
+            <h1 className="font-['Luxurious_Script'] text-5xl tracking-wider text-[#81D8D0] drop-shadow-[0_0_15px_rgba(129,216,208,0.8)]">
+              CC's Birthday
+            </h1>
+            <p className="mt-4 text-sm font-light tracking-[0.2em] opacity-80">
+              {!isAwake ? "PULL VIRTUAL CORD TO IGNITE" : (isGalaxy ? "FIST TO ASSEMBLE · PINCH TO VIEW" : "OPEN HAND TO EXPLODE")}
+            </p>
+          </div>
+
+          {/* 交互光标 */}
+          <div 
+            ref={cursorRef} 
+            className={`cursor-ring ${cursorMode === 'pinch' ? 'cursor-pinch' : ''}`}
+          ></div>
+        </div>
+      );
+    }
+
+    const root = createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
