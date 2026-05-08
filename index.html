@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>CC 生日快乐</title>
+  <style>
+    :root {
+      --bg: #050509;
+      --cream: #f8eedc;
+      --gold: #e2c985;
+      --rose: #e9b7c4;
+      --glass: rgba(255,255,255,.075);
+      --line: rgba(248,238,220,.18);
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body {
+      margin: 0; width: 100%; height: 100%; overflow: hidden;
+      background: radial-gradient(circle at 50% 35%, #18131d 0%, #060609 45%, #000 100%);
+      color: var(--cream);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+    #stage { position: fixed; inset: 0; z-index: 1; }
+    #video {
+      position: fixed; right: 18px; bottom: 18px; width: 180px; height: 118px;
+      object-fit: cover; transform: scaleX(-1); z-index: 8; opacity: .42;
+      border: 1px solid rgba(248,238,220,.18); border-radius: 20px;
+      box-shadow: 0 18px 70px rgba(0,0,0,.55);
+      transition: opacity .2s ease;
+    }
+    #video:hover { opacity: .85; }
+    .intro {
+      position: fixed; inset: 0; z-index: 20; display: grid; place-items: center;
+      background: radial-gradient(circle at center, rgba(24,19,29,.94), rgba(0,0,0,.98));
+      padding: 22px;
+    }
+    .intro.hide { display: none; }
+    .card {
+      width: min(720px, 92vw); padding: 38px 28px; border-radius: 32px;
+      background: linear-gradient(135deg, rgba(255,255,255,.11), rgba(255,255,255,.035));
+      border: 1px solid var(--line); text-align: center;
+      box-shadow: 0 28px 110px rgba(0,0,0,.62);
+      backdrop-filter: blur(22px);
+    }
+    .card h1 { margin: 0 0 14px; font-size: clamp(30px, 6vw, 54px); letter-spacing: -.03em; }
+    .card p { margin: 0 auto 24px; max-width: 560px; color: rgba(248,238,220,.72); font-size: 16px; line-height: 1.7; }
+    button {
+      border: 1px solid rgba(226,201,133,.5); color: var(--cream); background: rgba(226,201,133,.16);
+      border-radius: 999px; padding: 13px 22px; font-size: 16px; cursor: pointer;
+      box-shadow: 0 10px 36px rgba(226,201,133,.08);
+    }
+    .hud {
+      position: fixed; left: 22px; top: 20px; z-index: 9; max-width: min(460px, calc(100vw - 44px));
+      padding: 16px 17px 14px; border-radius: 24px; border: 1px solid rgba(248,238,220,.12);
+      background: rgba(7,7,12,.45); backdrop-filter: blur(18px); box-shadow: 0 18px 70px rgba(0,0,0,.34);
+      transition: opacity .25s ease;
+    }
+    .kicker { font-size: 11px; letter-spacing: .25em; color: rgba(248,238,220,.44); margin-bottom: 8px; }
+    .title { font-size: 22px; font-weight: 850; margin-bottom: 10px; }
+    .row { display: grid; grid-template-columns: 80px 1fr; gap: 4px 10px; font-size: 13px; color: rgba(248,238,220,.65); line-height: 1.6; }
+    .row b { color: var(--gold); font-weight: 750; }
+    .tips {
+      position: fixed; right: 22px; top: 20px; z-index: 9; width: 300px; padding: 14px 16px;
+      border-radius: 20px; border: 1px solid rgba(248,238,220,.11); background: rgba(7,7,12,.36);
+      color: rgba(248,238,220,.68); font-size: 12px; line-height: 1.65; backdrop-filter: blur(18px);
+    }
+    .centerText {
+      position: fixed; left: 50%; top: 54%; transform: translate(-50%, -50%); z-index: 7;
+      pointer-events: none; text-align: center; white-space: nowrap;
+    }
+    #bigTitle {
+      opacity: 0; transform: translateY(18px) scale(.94);
+      font-size: clamp(44px, 12vw, 138px); font-weight: 900; letter-spacing: -.055em;
+      text-shadow: 0 0 22px rgba(226,201,133,.33), 0 18px 80px rgba(0,0,0,.7);
+      transition: opacity .45s ease, transform .55s cubic-bezier(.18,.88,.2,1.14);
+    }
+    #bigSub {
+      margin-top: 16px; opacity: 0; color: rgba(248,238,220,.62); letter-spacing: .22em; font-size: clamp(12px, 2vw, 20px);
+      transition: opacity .45s ease .1s;
+    }
+    #bigTitle.show { opacity: 1; transform: translateY(0) scale(1); }
+    #bigSub.show { opacity: 1; }
+    .controls { position: fixed; left: 22px; bottom: 20px; z-index: 10; display: flex; gap: 10px; opacity: .3; transition: opacity .2s ease; }
+    .controls:hover { opacity: .9; }
+    .controls button { padding: 10px 14px; font-size: 13px; background: rgba(255,255,255,.08); border-color: rgba(248,238,220,.16); }
+    @media (max-width: 760px) {
+      .hud { left: 12px; right: 12px; top: 12px; max-width: none; padding: 13px; }
+      .title { font-size: 17px; }
+      .row { font-size: 12px; grid-template-columns: 70px 1fr; }
+      .tips { display: none; }
+      #video { width: 116px; height: 82px; right: 10px; bottom: 10px; opacity: .3; }
+      .controls { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div id="stage"></div>
+  <video id="video" playsinline muted></video>
+
+  <div class="intro" id="intro">
+    <div class="card">
+      <h1>送给 CC 的生日仪式</h1>
+      <p>请点击开启并允许摄像头。先做 3、2、1 手势启动倒计时；进入相册后，每次开掌切换一张照片；比爱心，会出现生日快乐和烟花。</p>
+      <button id="startBtn">开启生日仪式</button>
+    </div>
+  </div>
+
+  <section class="hud">
+    <div class="kicker">GESTURE BIRTHDAY ALBUM</div>
+    <div class="title">CC · 手势粒子相册</div>
+    <div class="row">
+      <span>当前识别</span><b id="gestureLabel">等待手势</b>
+      <span>当前阶段</span><b id="phaseLabel">请做 3</b>
+      <span>照片</span><b id="photoLabel">准备中</b>
+    </div>
+  </section>
+
+  <aside class="tips">
+    <b>玩法</b><br />
+    ① 做 3：屏幕出现粒子 3<br />
+    ② 做 2：屏幕出现粒子 2<br />
+    ③ 做 1：进入照片粒子相册<br />
+    ④ 开掌：1–8 张照片轮播切换<br />
+    ⑤ 爱心/捏心：CC 生日快乐 + 烟花
+  </aside>
+
+  <div class="centerText">
+    <div id="bigTitle"></div>
+    <div id="bigSub"></div>
+  </div>
+
+  <div class="controls">
+    <button id="resetBtn">重置</button>
+    <button id="manualBtn">手动推进</button>
+  </div>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import * as THREE from "three";
+
+    const MP_SCRIPTS = [
+      "https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js",
+      "https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"
+    ];
+    function loadScript(src) {
+      return new Promise((resolve, reject) => {
+        const s = document.createElement("script");
+        s.src = src; s.onload = resolve; s.onerror = reject; document.head.appendChild(s);
+      });
+    }
+    for (const src of MP_SCRIPTS) await loadScript(src);
+
+    const PHOTO_URLS = ["./1.JPG", "./2.jpg", "./3.jpg", "./4.JPG", "./5.JPG", "./6.JPG", "./7.JPG", "./8.JPG"];
+
+    const $ = s => document.querySelector(s);
+    const stage = $("#stage"), video = $("#video"), intro = $("#intro");
+    const gestureLabel = $("#gestureLabel"), phaseLabel = $("#phaseLabel"), photoLabel = $("#photoLabel");
+    const bigTitle = $("#bigTitle"), bigSub = $("#bigSub");
+
+    const Phase = { WAIT3:0, WAIT2:1, WAIT1:2, ALBUM:3, LOVE:4 };
+    let phase = Phase.WAIT3;
+    let lastAction = 0;
+    let lastGesture = "none";
+    let gestureQueue = [];
+    let photoIndex = -1;
+    let textures = [];
+    let imagePointCache = [];
+    let handInfluence = { x: 0, y: 0, power: 0 };
+
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x030306, 0.035);
+    const cam = new THREE.PerspectiveCamera(55, innerWidth / innerHeight, 0.1, 100);
+    cam.position.set(0, 0, 8.8);
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
+    renderer.setSize(innerWidth, innerHeight); renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    stage.appendChild(renderer.domElement);
+
+    const COUNT = innerWidth < 760 ? 16000 : 32000;
+    const geo = new THREE.BufferGeometry();
+    const pos = new Float32Array(COUNT * 3);
+    const target = new Float32Array(COUNT * 3);
+    const color = new Float32Array(COUNT * 3);
+    const size = new Float32Array(COUNT);
+    const rand = new Float32Array(COUNT);
+
+    const C = {
+      cream: new THREE.Color("#fff1d8"),
+      gold: new THREE.Color("#e2c985"),
+      rose: new THREE.Color("#e8a9ba"),
+      blue: new THREE.Color("#b8c7d9"),
+      sage: new THREE.Color("#b9c4aa")
+    };
+
+    function sphere(r = 5) {
+      const a = Math.random() * Math.PI * 2, z = Math.random() * 2 - 1;
+      const q = Math.sqrt(1 - z*z) * r * Math.cbrt(Math.random());
+      return [Math.cos(a)*q, Math.sin(a)*q, z*r];
+    }
+    for (let i = 0; i < COUNT; i++) {
+      const p = sphere(6.5); pos.set(p, i*3); target.set(p, i*3);
+      const cc = [C.cream, C.gold, C.rose, C.blue][i % 4];
+      color[i*3] = cc.r; color[i*3+1] = cc.g; color[i*3+2] = cc.b;
+      size[i] = .022 + Math.random() * .034; rand[i] = Math.random();
+    }
+    geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    geo.setAttribute("aColor", new THREE.BufferAttribute(color, 3));
+    geo.setAttribute("aSize", new THREE.BufferAttribute(size, 1));
+    geo.setAttribute("aRand", new THREE.BufferAttribute(rand, 1));
+
+    const mat = new THREE.ShaderMaterial({
+      transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+      uniforms: { uTime: { value: 0 }, uRatio: { value: renderer.getPixelRatio() }, uGlow: { value: 1.0 } },
+      vertexShader: `
+        attribute vec3 aColor; attribute float aSize; attribute float aRand;
+        varying vec3 vColor; uniform float uTime; uniform float uRatio; uniform float uGlow;
+        void main(){
+          vColor = aColor;
+          vec3 p = position;
+          p.x += sin(uTime*1.2 + aRand*30.0) * 0.018 * uGlow;
+          p.y += cos(uTime*.9 + aRand*22.0) * 0.018 * uGlow;
+          vec4 mv = modelViewMatrix * vec4(p, 1.0);
+          gl_PointSize = aSize * uRatio * 620.0 / max(.9, -mv.z);
+          gl_Position = projectionMatrix * mv;
+        }`,
+      fragmentShader: `
+        varying vec3 vColor;
+        void main(){
+          vec2 uv = gl_PointCoord - .5;
+          float d = length(uv);
+          float a = smoothstep(.5, .03, d);
+          gl_FragColor = vec4(vColor, a*.92);
+        }`
+    });
+    const points = new THREE.Points(geo, mat);
+    scene.add(points);
+
+    const fireGroup = new THREE.Group(); scene.add(fireGroup);
+    const trails = [];
+
+    function setPhase(p) {
+      phase = p;
+      phaseLabel.textContent = ["请做 3", "请做 2", "请做 1", "开掌切换照片", "爱心触发生日祝福"][p] || "";
+    }
+    function flash(title, sub = "", ms = 900) {
+      bigTitle.textContent = title; bigSub.textContent = sub;
+      bigTitle.classList.add("show"); bigSub.classList.toggle("show", !!sub);
+      clearTimeout(flash.t); flash.t = setTimeout(() => { bigTitle.classList.remove("show"); bigSub.classList.remove("show"); }, ms);
+    }
+    function tint(i, cc) { color[i*3]=cc.r; color[i*3+1]=cc.g; color[i*3+2]=cc.b; }
+
+    function canvasTextPoints(text, fontSize = 300, maxW = 1200) {
+      const cvs = document.createElement("canvas"); cvs.width = maxW; cvs.height = 520;
+      const ctx = cvs.getContext("2d", { willReadFrequently:true });
+      ctx.clearRect(0,0,cvs.width,cvs.height); ctx.fillStyle = "#fff";
+      ctx.textAlign="center"; ctx.textBaseline="middle";
+      ctx.font = `900 ${fontSize}px PingFang SC, Microsoft YaHei, Arial`;
+      ctx.fillText(text, cvs.width/2, cvs.height/2);
+      const data = ctx.getImageData(0,0,cvs.width,cvs.height).data;
+      const pts = [];
+      const step = text.length <= 2 ? 4 : 5;
+      for (let y=0; y<cvs.height; y+=step) for (let x=0; x<cvs.width; x+=step) {
+        const a = data[(y*cvs.width+x)*4+3];
+        if (a > 80) pts.push({ x:(x-cvs.width/2)/95, y:-(y-cvs.height/2)/95, z:(Math.random()-.5)*.35 });
+      }
+      return pts;
+    }
+
+    function morphToText(text, sub, fontSize = 340) {
+      const pts = canvasTextPoints(text, fontSize);
+      flash(text, sub, 850);
+      mat.uniforms.uGlow.value = 1.65;
+      for (let i=0; i<COUNT; i++) {
+        const p = pts[i % pts.length];
+        const burst = i < pts.length ? 0 : Math.random() * .06;
+        target[i*3] = p.x + (Math.random()-.5)*burst;
+        target[i*3+1] = p.y + (Math.random()-.5)*burst;
+        target[i*3+2] = p.z + Math.sin(i*.013)*.08;
+        tint(i, [C.cream, C.gold, C.rose][i%3]);
+      }
+      geo.attributes.aColor.needsUpdate = true;
+    }
+
+    async function loadTexture(url) {
+      const tex = await new Promise((res, rej) => new THREE.TextureLoader().load(url, res, undefined, rej));
+      tex.colorSpace = THREE.SRGBColorSpace;
+      return tex;
+    }
+    async function loadPhotos() {
+      const ok = [];
+      for (const url of PHOTO_URLS) {
+        try { ok.push(await loadTexture(url)); } catch(e) { console.warn("photo load fail", url, e); }
+      }
+      textures = ok;
+      photoLabel.textContent = `${textures.length} 张`;
+      imagePointCache = textures.map(sampleTexture);
+      if (textures.length) morphToPhoto(0);
+    }
+
+    function sampleTexture(tex) {
+      const img = tex.image;
+      const cvs = document.createElement("canvas");
+      const ctx = cvs.getContext("2d", { willReadFrequently:true });
+      const portrait = img.height > img.width;
+      const w = portrait ? 420 : 560;
+      const h = Math.round(w * img.height / img.width);
+      cvs.width = w; cvs.height = h;
+      ctx.drawImage(img, 0, 0, w, h);
+      const data = ctx.getImageData(0,0,w,h).data;
+      const pts = [];
+      const step = Math.max(2, Math.floor(Math.sqrt((w*h)/COUNT)));
+      const scale = portrait ? 86 : 92;
+      for (let y=0; y<h; y+=step) for (let x=0; x<w; x+=step) {
+        const idx = (y*w+x)*4;
+        const a = data[idx+3]; if (a < 30) continue;
+        const lum = (data[idx]+data[idx+1]+data[idx+2]) / 765;
+        const depth = (lum-.5)*.55 + (Math.random()-.5)*.2;
+        pts.push({
+          x:(x-w/2)/scale, y:-(y-h/2)/scale, z:depth,
+          r:data[idx]/255, g:data[idx+1]/255, b:data[idx+2]/255
+        });
+      }
+      return pts;
+    }
+
+    function morphToPhoto(idx) {
+      if (!textures.length) return;
+      photoIndex = ((idx % textures.length) + textures.length) % textures.length;
+      const pts = imagePointCache[photoIndex];
+      photoLabel.textContent = `${photoIndex+1}/${textures.length}`;
+      flash(`MEMORY ${photoIndex+1}`, "OPEN PALM TO SWITCH", 760);
+      mat.uniforms.uGlow.value = 1.15;
+      for (let i=0; i<COUNT; i++) {
+        const p = pts[i % pts.length];
+        const edgeFlow = Math.sin(i*.01) * .05;
+        target[i*3] = p.x;
+        target[i*3+1] = p.y;
+        target[i*3+2] = p.z + edgeFlow;
+        color[i*3] = p.r*.82 + C.gold.r*.18;
+        color[i*3+1] = p.g*.82 + C.gold.g*.18;
+        color[i*3+2] = p.b*.82 + C.cream.b*.18;
+      }
+      geo.attributes.aColor.needsUpdate = true;
+    }
+
+    function makeFirework(x=0, y=0, z=0) {
+      const count = 180;
+      const g = new THREE.BufferGeometry();
+      const p = new Float32Array(count*3), c = new Float32Array(count*3);
+      const v = [];
+      for (let i=0; i<count; i++) {
+        p.set([x,y,z], i*3);
+        const dir = new THREE.Vector3(Math.random()-.5, Math.random()-.5, Math.random()-.5).normalize().multiplyScalar(.035 + Math.random()*.075);
+        v.push(dir);
+        const cc = [C.gold, C.rose, C.cream, C.blue][i%4]; c[i*3]=cc.r; c[i*3+1]=cc.g; c[i*3+2]=cc.b;
+      }
+      g.setAttribute("position", new THREE.BufferAttribute(p,3)); g.setAttribute("color", new THREE.BufferAttribute(c,3));
+      const m = new THREE.PointsMaterial({ size:.045, vertexColors:true, transparent:true, opacity:.95, depthWrite:false, blending:THREE.AdditiveBlending });
+      const obj = new THREE.Points(g,m); obj.userData = { v, life: 1.0 };
+      fireGroup.add(obj); trails.push(obj);
+    }
+    function loveShow() {
+      morphToText("CC生日快乐", "LOVE YOU TO THE SCREEN", 190);
+      for (let k=0;k<6;k++) setTimeout(() => makeFirework((Math.random()-.5)*5, (Math.random()-.2)*2.2, (Math.random()-.5)*1.5), k*260);
+    }
+
+    function dist(a,b){ return Math.hypot(a.x-b.x,a.y-b.y,a.z-b.z); }
+    function extended(lm, tip, pip, mcp){ return lm[tip].y < lm[pip].y - .022 && lm[tip].y < lm[mcp].y - .035; }
+    function thumb(lm){ return dist(lm[4], lm[0]) > dist(lm[3], lm[0]) && dist(lm[4], lm[9]) > dist(lm[3], lm[9]); }
+    function classify(lm) {
+      if (!lm) return "none";
+      const index=extended(lm,8,6,5), middle=extended(lm,12,10,9), ring=extended(lm,16,14,13), pinky=extended(lm,20,18,17), th=thumb(lm);
+      const count = [th,index,middle,ring,pinky].filter(Boolean).length;
+      const palm = count >= 4 && dist(lm[8], lm[20]) > dist(lm[5], lm[17]) * 1.42;
+      const fist = count <= 1 && dist(lm[8],lm[0]) < dist(lm[5],lm[0])*1.55;
+      const heart = dist(lm[4], lm[8]) < .075 || (dist(lm[4],lm[8]) < .11 && !ring && !pinky);
+      if (heart) return "heart";
+      if (palm) return "palm";
+      if (fist) return "fist";
+      if (index && middle && ring && !pinky) return "three";
+      if (index && middle && !ring && !pinky) return "two";
+      if (index && !middle && !ring && !pinky) return "one";
+      return `open-${count}`;
+    }
+    function stable(raw) {
+      gestureQueue.push(raw); if (gestureQueue.length > 7) gestureQueue.shift();
+      const m = {}; gestureQueue.forEach(g => m[g] = (m[g] || 0) + 1);
+      let best = "none", n = 0; Object.keys(m).forEach(k => { if(m[k] > n){ best=k; n=m[k]; } });
+      return n >= 3 ? best : lastGesture;
+    }
+    function label(g) { return ({three:"3", two:"2", one:"1", palm:"开掌", fist:"拳头", heart:"爱心/捏心", none:"等待手势"})[g] || g; }
+    function handleGesture(g) {
+      gestureLabel.textContent = label(g);
+      const now = performance.now(); if (now - lastAction < 850) return;
+      if (phase === Phase.WAIT3 && g === "three") { morphToText("3", "SEQUENCE START", 360); setPhase(Phase.WAIT2); lastAction = now; }
+      else if (phase === Phase.WAIT2 && g === "two") { morphToText("2", "KEEP GOING", 360); setPhase(Phase.WAIT1); lastAction = now; }
+      else if (phase === Phase.WAIT1 && g === "one") { morphToText("1", "MEMORY LOGS", 360); setTimeout(() => { setPhase(Phase.ALBUM); morphToPhoto(0); }, 750); lastAction = now; }
+      else if (phase === Phase.ALBUM && g === "palm" && lastGesture !== "palm") { morphToPhoto(photoIndex + 1); lastAction = now; }
+      else if ((phase === Phase.ALBUM || phase === Phase.LOVE) && g === "heart") { setPhase(Phase.LOVE); loveShow(); lastAction = now; }
+      lastGesture = g;
+    }
+
+    const hands = new window.Hands({ locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}` });
+    hands.setOptions({ maxNumHands: 1, modelComplexity: 1, minDetectionConfidence: .68, minTrackingConfidence: .62 });
+    hands.onResults(res => {
+      const lm = res.multiHandLandmarks?.[0];
+      if (lm) {
+        handInfluence.x = (0.5 - lm[9].x) * 1.4;
+        handInfluence.y = (0.5 - lm[9].y) * 1.0;
+        handInfluence.power = .8;
+      } else handInfluence.power *= .92;
+      const g = stable(classify(lm));
+      handleGesture(g);
+    });
+
+    let mpCam;
+    async function start() {
+      intro.classList.add("hide");
+      if (mpCam) return;
+      mpCam = new window.Camera(video, { onFrame: async () => await hands.send({ image: video }), width: 640, height: 480 });
+      await mpCam.start();
+    }
+    $("#startBtn").addEventListener("click", () => start().catch(err => { console.error(err); alert("摄像头没有启动，请检查浏览器摄像头权限。建议用 Safari/Chrome 打开 HTTPS 链接。"); intro.classList.remove("hide"); }));
+    $("#resetBtn").addEventListener("click", () => { setPhase(Phase.WAIT3); morphToText("3", "SHOW 3 TO START", 360); });
+    $("#manualBtn").addEventListener("click", () => {
+      if (phase === Phase.WAIT3) { morphToText("3", "SEQUENCE START", 360); setPhase(Phase.WAIT2); }
+      else if (phase === Phase.WAIT2) { morphToText("2", "KEEP GOING", 360); setPhase(Phase.WAIT1); }
+      else if (phase === Phase.WAIT1) { morphToText("1", "MEMORY LOGS", 360); setPhase(Phase.ALBUM); morphToPhoto(0); }
+      else if (phase === Phase.ALBUM) morphToPhoto(photoIndex + 1);
+      else loveShow();
+    });
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const t = performance.now() * .001;
+      mat.uniforms.uTime.value = t;
+      const p = geo.attributes.position.array;
+      const ease = phase === Phase.ALBUM ? .07 : .08;
+      const hp = handInfluence.power;
+      for (let i=0; i<COUNT; i++) {
+        const ix = i*3;
+        const swirl = hp * .018 * Math.sin(t*3 + rand[i]*20);
+        p[ix] += (target[ix] + handInfluence.x*hp*.28 + swirl - p[ix]) * ease;
+        p[ix+1] += (target[ix+1] + handInfluence.y*hp*.18 + Math.cos(t*2+rand[i]*12)*hp*.01 - p[ix+1]) * ease;
+        p[ix+2] += (target[ix+2] + Math.sin(t+rand[i]*8)*.025 - p[ix+2]) * ease;
+      }
+      geo.attributes.position.needsUpdate = true;
+      points.rotation.y = Math.sin(t*.22) * .12 + handInfluence.x * .06;
+      points.rotation.x = Math.cos(t*.17) * .045 - handInfluence.y * .04;
+
+      for (let i=trails.length-1; i>=0; i--) {
+        const o = trails[i]; o.userData.life -= .012; o.material.opacity = Math.max(0, o.userData.life);
+        const arr = o.geometry.attributes.position.array;
+        for (let j=0; j<o.userData.v.length; j++) {
+          arr[j*3] += o.userData.v[j].x;
+          arr[j*3+1] += o.userData.v[j].y - (1-o.userData.life)*.004;
+          arr[j*3+2] += o.userData.v[j].z;
+        }
+        o.geometry.attributes.position.needsUpdate = true;
+        if (o.userData.life <= 0) { fireGroup.remove(o); trails.splice(i,1); }
+      }
+      renderer.render(scene, cam);
+    }
+    addEventListener("resize", () => { cam.aspect = innerWidth/innerHeight; cam.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); mat.uniforms.uRatio.value = renderer.getPixelRatio(); });
+
+    setPhase(Phase.WAIT3);
+    morphToText("3", "SHOW 3 TO START", 360);
+    loadPhotos();
+    animate();
+  </script>
+</body>
+</html>
