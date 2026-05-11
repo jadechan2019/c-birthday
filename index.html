@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>CC's Starport</title>
+  <style>
+    :root{
+      --bg:#020607;
+      --panel:rgba(9,22,24,.74);
+      --line:rgba(129,216,208,.22);
+      --cream:#fff2dc;
+      --muted:rgba(255,242,220,.62);
+      --tiffany:#81D8D0;
+      --deep:#1E5959;
+      --gold:#F0D899;
+      --pink:#E9B7C7;
+      --purple:#D8B4FE;
+      --blue:#9CC7FF;
+      --shadow:0 26px 120px rgba(0,0,0,.58);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;background:var(--bg);color:var(--cream);font-family:Inter,-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;overflow-x:hidden}
+    body{background:radial-gradient(circle at 18% 12%,rgba(129,216,208,.08),transparent 34%),radial-gradient(circle at 76% 22%,rgba(216,180,254,.08),transparent 36%),radial-gradient(circle at 54% 80%,rgba(240,216,153,.06),transparent 32%),#020607}
+    a{color:inherit;text-decoration:none}
+    button{font:inherit;color:var(--cream);background:rgba(255,255,255,.045);border:1px solid rgba(255,242,220,.18);border-radius:999px;padding:12px 18px;cursor:pointer;transition:.25s ease;backdrop-filter:blur(16px)}
+    button:hover{border-color:rgba(240,216,153,.5);box-shadow:0 0 32px rgba(240,216,153,.12);transform:translateY(-1px)}
+    button.primary{background:linear-gradient(135deg,rgba(129,216,208,.20),rgba(240,216,153,.10));border-color:rgba(129,216,208,.38)}
+    button.ghost{background:rgba(255,255,255,.035)}
+    .app{min-height:100vh;position:relative;overflow:hidden}
+    .screen{position:absolute;inset:0;display:none;min-height:100vh;overflow:hidden}
+    .screen.active{display:block}
+    .fadeIn{animation:fadeIn .55s ease both}@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+    .bgStars{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.66;background-image:radial-gradient(circle,rgba(255,242,220,.42) 0 1px,transparent 1.6px),radial-gradient(circle,rgba(129,216,208,.28) 0 1px,transparent 1.8px),radial-gradient(circle,rgba(216,180,254,.22) 0 1px,transparent 1.7px);background-size:120px 120px,190px 190px,260px 260px;background-position:12px 18px,80px 35px,140px 90px}
+    .bgGlow{position:fixed;inset:-25%;z-index:0;pointer-events:none;background:conic-gradient(from 20deg,transparent,rgba(129,216,208,.08),transparent,rgba(216,180,254,.10),transparent,rgba(240,216,153,.07),transparent);filter:blur(60px);opacity:.7;animation:slowSpin 30s linear infinite}@keyframes slowSpin{to{transform:rotate(360deg)}}
+    .panel{background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);backdrop-filter:blur(24px)}
+    .kicker{letter-spacing:.48em;text-transform:uppercase;color:rgba(255,242,220,.48);font-weight:700;font-size:12px}
+    .script{font-family:"Snell Roundhand","Baskerville",Georgia,serif;font-style:italic;font-weight:400;letter-spacing:.02em}
+    .hint{color:var(--muted);line-height:1.8}
+
+    /* Home */
+    .homeWrap{position:relative;z-index:2;min-height:100vh;display:grid;place-items:center;padding:40px 24px}
+    .homeCard{width:min(1420px,92vw);border-radius:36px;padding:58px 58px 46px;background:linear-gradient(145deg,rgba(13,31,32,.84),rgba(4,8,12,.82));border:1px solid rgba(129,216,208,.24);box-shadow:var(--shadow);text-align:center;position:relative;overflow:hidden}
+    .homeCard:before{content:"";position:absolute;inset:-20%;background:radial-gradient(circle at 48% 18%,rgba(129,216,208,.18),transparent 30%),radial-gradient(circle at 80% 70%,rgba(216,180,254,.10),transparent 30%);filter:blur(30px);pointer-events:none}
+    .homeCard>*{position:relative;z-index:1}
+    .homeTitle{font-size:clamp(58px,8vw,128px);line-height:.86;margin:18px 0 28px;text-shadow:0 0 34px rgba(129,216,208,.18)}
+    .homeIntro{font-size:18px;line-height:2;max-width:900px;margin:0 auto 44px;color:rgba(255,242,220,.72)}
+    .gateGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;text-align:left;margin-top:26px}
+    .gateCard{min-height:224px;border-radius:28px;padding:28px 30px;background:linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.015));border:1px solid rgba(255,242,220,.13);transition:.28s ease;cursor:pointer;display:flex;flex-direction:column;justify-content:center}
+    .gateCard:hover{transform:translateY(-5px);border-color:rgba(240,216,153,.38);box-shadow:0 28px 90px rgba(0,0,0,.32),0 0 44px rgba(129,216,208,.08)}
+    .gateCard h3{font-size:34px;margin:18px 0 12px}.gateCard p{margin:0;color:rgba(255,242,220,.62);line-height:1.75}
+    .passport{margin-top:32px;color:rgba(255,242,220,.56);letter-spacing:.08em}
+
+    /* Real World */
+    .topbar{position:absolute;z-index:6;left:28px;right:28px;top:28px;display:flex;justify-content:space-between;gap:18px;align-items:flex-start}
+    .topTitle{border-radius:24px;padding:18px 22px;max-width:min(560px,74vw)}
+    .topTitle h2{margin:8px 0 8px;font-size:34px;line-height:1.08}.topTitle p{margin:0;color:rgba(255,242,220,.64);line-height:1.7}
+    .realLayout{position:absolute;left:28px;right:28px;top:138px;bottom:28px;display:grid;grid-template-columns:1fr 360px;gap:18px;z-index:2}
+    .galaxyBox{position:relative;border-radius:32px;overflow:hidden;border:1px solid rgba(129,216,208,.20);background:radial-gradient(ellipse at 50% 46%,rgba(129,216,208,.13),rgba(3,10,12,.92) 46%,rgba(0,0,0,.96) 100%);box-shadow:var(--shadow);min-height:540px}
+    .galaxyBox:before{content:"";position:absolute;inset:-20%;background:conic-gradient(from 20deg,transparent,rgba(129,216,208,.13),rgba(240,216,153,.10),transparent,rgba(233,183,199,.10),transparent);filter:blur(34px);opacity:.72;animation:slowSpin 24s linear infinite;pointer-events:none}
+    .galaxyBox:after{content:"";position:absolute;left:50%;top:50%;width:min(760px,70vw);height:min(300px,32vh);transform:translate(-50%,-50%) rotate(-10deg);border-radius:50%;border:1px solid rgba(129,216,208,.10);box-shadow:0 0 80px rgba(129,216,208,.12),inset 0 0 80px rgba(240,216,153,.06);pointer-events:none}
+    .photoOrbit{position:absolute;inset:0;perspective:1100px;transform-style:preserve-3d;overflow:hidden;z-index:2}
+    .photoCard{position:absolute;left:50%;top:50%;width:190px;height:132px;margin-left:-95px;margin-top:-66px;border-radius:18px;overflow:hidden;border:1px solid rgba(255,255,255,.18);box-shadow:0 16px 60px rgba(0,0,0,.62),0 0 28px rgba(129,216,208,.16),inset 0 0 0 1px rgba(255,255,255,.05);background:linear-gradient(135deg,rgba(129,216,208,.16),rgba(240,216,153,.08));cursor:pointer;transition:transform .8s cubic-bezier(.18,.88,.2,1),opacity .5s ease,filter .3s ease,border-color .3s ease;backdrop-filter:blur(8px);will-change:transform,opacity}
+    .photoCard:before{content:"";position:absolute;inset:-2px;border-radius:20px;background:linear-gradient(135deg,rgba(129,216,208,.7),rgba(240,216,153,.24),rgba(233,183,199,.48));opacity:.28;filter:blur(7px);z-index:-1;transition:.35s ease}
+    .photoCard:hover:before,.photoCard.enlarged:before{opacity:.82;filter:blur(12px)}
+    .photoCard img{width:100%;height:100%;object-fit:contain;display:block;background:radial-gradient(circle at 50% 45%,rgba(255,242,220,.08),rgba(0,0,0,.38))}
+    .photoCard .fallback{position:absolute;inset:0;display:grid;place-items:center;padding:12px;text-align:center;color:rgba(255,242,220,.68);font-size:12px;line-height:1.5;background:linear-gradient(135deg,rgba(129,216,208,.16),rgba(240,216,153,.08))}.photoCard.loaded .fallback{display:none}
+    .photoCard.enlarged{border-color:rgba(240,216,153,.75);box-shadow:0 26px 110px rgba(0,0,0,.78),0 0 70px rgba(129,216,208,.32),0 0 120px rgba(240,216,153,.12)}
+    .photoCard.cherished{border-color:rgba(216,180,254,.96)!important;box-shadow:0 26px 120px rgba(0,0,0,.82),0 0 90px rgba(216,180,254,.45),0 0 140px rgba(233,183,199,.26)!important;overflow:visible!important}
+    .photoCard.cherished img{border-radius:18px;clip-path:none;object-fit:contain;filter:saturate(1.04) brightness(1.03)}
+    .photoCard.cherished:after{content:"";position:absolute;left:50%;top:50%;width:138%;height:170%;transform:translate(-50%,-50%);pointer-events:none;z-index:5;background:radial-gradient(circle at 50% 44%,rgba(255,255,255,.40),transparent 23%),radial-gradient(circle at 31% 31%,rgba(216,180,254,.96),transparent 24%),radial-gradient(circle at 69% 31%,rgba(255,190,228,.92),transparent 24%),radial-gradient(circle at 50% 70%,rgba(129,216,208,.38),transparent 34%),conic-gradient(from 150deg,rgba(216,180,254,.05),rgba(216,180,254,.95),rgba(255,190,228,.9),rgba(240,216,153,.55),rgba(129,216,208,.42),rgba(216,180,254,.05));clip-path:path('M 112 168 C 48 116 0 74 18 30 C 34 -8 86 -2 112 36 C 138 -2 190 -8 206 30 C 224 74 176 116 112 168 Z');opacity:.48;mix-blend-mode:screen;filter:blur(.2px) drop-shadow(0 0 26px rgba(216,180,254,.86)) drop-shadow(0 0 62px rgba(233,183,199,.48));animation:heartPulse 1.35s ease-in-out infinite}@keyframes heartPulse{50%{transform:translate(-50%,-50%) scale(1.045);opacity:.62}}
+    .galaxySpark{position:absolute;width:3px;height:3px;border-radius:50%;background:rgba(255,242,220,.8);box-shadow:0 0 10px rgba(129,216,208,.55);z-index:1;pointer-events:none;animation:twinkle 3.2s ease-in-out infinite}@keyframes twinkle{0%,100%{opacity:.22;transform:scale(.75)}50%{opacity:1;transform:scale(1.35)}}
+    .archiveText{position:absolute;left:34px;bottom:36px;z-index:4;pointer-events:none}.archiveText .script{font-size:36px;margin:6px 0;color:rgba(255,242,220,.92)}
+    .sidePanel{border-radius:30px;padding:26px;background:linear-gradient(145deg,rgba(12,28,29,.72),rgba(4,9,12,.78));border:1px solid rgba(129,216,208,.22);box-shadow:var(--shadow);overflow:auto}.sidePanel h3{margin:0 0 14px;font-size:21px}.sidePanel hr{border:0;border-top:1px solid rgba(255,242,220,.10);margin:24px 0}.uploadInput{display:none}
+    .fireworkDot{position:absolute;z-index:12;border-radius:50%;pointer-events:none;left:0;top:0;background:var(--tiffany);box-shadow:0 0 18px currentColor;animation:fireworkDot 1.55s cubic-bezier(.12,.72,.18,1) forwards}@keyframes fireworkDot{0%{transform:translate(0,0) scale(.7);opacity:1}70%{opacity:1}100%{transform:translate(var(--fx),var(--fy)) scale(.08);opacity:0}}
+    .fireworkDot.star{clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 56%,79% 91%,50% 70%,21% 91%,32% 56%,2% 35%,39% 35%);border-radius:0}.fireworkDot.flower{border-radius:50% 10% 50% 10%;transform-origin:center}
+    .confettiPiece{position:absolute;z-index:13;left:0;top:0;pointer-events:none;box-shadow:0 0 16px rgba(255,255,255,.16);animation:confettiPiece 2.7s cubic-bezier(.18,.72,.18,1) forwards}@keyframes confettiPiece{0%{transform:translate(0,0) rotate(0deg);opacity:1}80%{opacity:1}100%{transform:translate(var(--cx),var(--cy)) rotate(var(--cr));opacity:0}}
+    .confettiPiece.strip{width:8px;height:30px;border-radius:6px}.confettiPiece.square{width:12px;height:12px;border-radius:3px}.confettiPiece.circle{width:10px;height:10px;border-radius:50%}.confettiPiece.triangle{width:0;height:0;background:transparent!important;border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:13px solid var(--gold);box-shadow:none}.confettiPiece.heart{width:14px;height:14px;background:#E9B7C7;transform:rotate(45deg)}.confettiPiece.heart:before,.confettiPiece.heart:after{content:"";position:absolute;width:14px;height:14px;background:inherit;border-radius:50%}.confettiPiece.heart:before{left:-7px;top:0}.confettiPiece.heart:after{left:0;top:-7px}
+    .screenFlash{position:absolute;inset:0;z-index:11;pointer-events:none;background:radial-gradient(circle at var(--x) var(--y),rgba(255,242,220,.72),rgba(129,216,208,.18) 18%,transparent 54%);animation:screenFlash .8s ease-out forwards}@keyframes screenFlash{from{opacity:1}to{opacity:0}}
+    .memoryToast{position:absolute;left:50%;top:50%;z-index:20;transform:translate(-50%,-50%);padding:12px 18px;border-radius:999px;border:1px solid rgba(233,183,199,.46);background:rgba(45,18,33,.50);backdrop-filter:blur(16px);color:rgba(255,242,220,.92);font-size:13px;letter-spacing:.12em;pointer-events:none;opacity:0;animation:toast 1.7s ease forwards;box-shadow:0 0 60px rgba(233,183,199,.22)}@keyframes toast{15%,70%{opacity:1;transform:translate(-50%,-50%) translateY(-4px)}100%{opacity:0;transform:translate(-50%,-50%) translateY(-18px)}}
+    @media(max-width:900px){.app{height:auto;min-height:100vh;overflow:visible}.screen{position:relative;min-height:100vh;height:auto;overflow:visible;padding-bottom:110px}.screen:not(.active){display:none}.homeWrap{height:auto;min-height:100vh;align-items:start;padding-top:28px;padding-bottom:90px}.homeCard{padding:38px 26px}.gateGrid{grid-template-columns:1fr}.gateCard{min-height:190px}.topbar{position:relative;left:auto;right:auto;top:auto;padding:22px;display:flex}.topTitle{max-width:100%}.realLayout{position:relative;left:auto;right:auto;top:auto;bottom:auto;display:block;margin:14px 18px 0}.galaxyBox{min-height:620px}.sidePanel{margin-top:14px}.archiveText{bottom:26px;left:24px}.archiveText .script{font-size:30px}.photoCard{width:150px;height:106px;margin-left:-75px;margin-top:-53px}}
+  </style>
+</head>
+<body>
+  <div class="bgStars"></div><div class="bgGlow"></div>
+  <div class="app">
+    <section id="home" class="screen active fadeIn">
+      <div class="homeWrap">
+        <div class="homeCard">
+          <div class="kicker">TERMINAL 22 · B612 TRANSIT OPEN</div>
+          <div class="homeTitle script">CC’s Starport</div>
+          <p class="homeIntro">这里不是一个普通网页。这里是 CC 的第 22 个宇宙入口：真实世界负责收藏闪光的记忆，魔法世界负责实现今晚的奇想，最后一站负责让整个宇宙为 CC 庆祝。</p>
+          <div class="gateGrid">
+            <div class="gateCard" data-go="real"><div class="kicker">GATE 01</div><h3>Real World</h3><p>那些真的发生过的时刻，会在这里汇聚成一条记忆星河。</p></div>
+            <a class="gateCard" href="./magic.html"><div class="kicker">GATE 02</div><h3>Magic World</h3><p>22 个今晚可以出发的平行世界，由女巫或 CC 亲手开启。</p></a>
+            <div class="gateCard" onclick="alert('Gate03 正在准备中。')"><div class="kicker">GATE 03</div><h3>Surprise</h3><p>生日蛋糕、蜡烛、烟花和彩带雨。</p></div>
+          </div>
+          <div class="passport">Passport to 22｜真实、魔法、仪式，三枚星际印章等待盖章。</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="real" class="screen">
+      <div class="topbar">
+        <div class="topTitle panel"><div class="kicker">GATE 01 · MEMORY GALAXY</div><h2>Real World｜记忆星河</h2><p>点击一张照片，它会飞到眼前；再次点击，珍藏这段回忆。</p></div>
+        <button class="ghost" data-go="home">返回 Starport</button>
+      </div>
+      <div class="realLayout">
+        <div class="galaxyBox">
+          <div id="photoOrbit" class="photoOrbit"></div>
+          <div class="archiveText"><div class="kicker">REAL WORLD ARCHIVE</div><div class="script">Every memory is a star.</div><div class="hint">真实世界的 CC，也一直在发光。点击一颗星，把这段记忆放大。</div></div>
+        </div>
+        <aside class="sidePanel">
+          <h3>临时加入星河</h3>
+          <p class="hint">GitHub Pages 不能永久保存上传照片，但可以让 CC 在当次打开时临时补充新记忆。</p>
+          <label><input id="realUpload" class="uploadInput" type="file" accept="image/*" multiple><button class="primary" type="button" onclick="document.getElementById('realUpload').click()">Add Memory</button></label>
+          <hr>
+          <p class="hint">默认读取 GitHub 根目录下 1-22 张照片。请保持文件名如 1.JPG、2.jpg、3.jpg……22.JPG。</p>
+        </aside>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    (function(){
+      var DEFAULT_PHOTOS = ['./1.JPG','./2.jpg','./3.jpg','./4.JPG','./5.JPG','./6.JPG','./7.JPG','./8.JPG','./9.JPG','./10.JPG','./11.JPG','./12.JPG','./13.JPG','./14.JPG','./15.JPG','./16.JPG','./17.JPG','./18.JPG','./19.JPG','./20.JPG','./21.JPG','./22.JPG'];
+      var photos = DEFAULT_PHOTOS.slice();
+      var enlargedCard = null;
+      var orbitTick = 0;
+      var colors = ['#81D8D0','#F0D899','#FFF2DC','#E9B7C7','#B8FFF7','#9CC7FF','#D8B4FE'];
+      function qs(s){return document.querySelector(s)}
+      function qsa(s){return Array.prototype.slice.call(document.querySelectorAll(s))}
+      function show(id){qsa('.screen').forEach(function(s){s.classList.remove('active','fadeIn')});var el=qs('#'+id);if(el){el.classList.add('active','fadeIn');if(id==='real')setTimeout(function(){buildPhotos();layoutPhotos();ensureStars()},50)}}
+      window.showScreen = show;
+      document.addEventListener('click',function(e){var node=e.target.closest&&e.target.closest('[data-go]');if(!node)return;e.preventDefault();show(node.getAttribute('data-go'))},true);
+      function ensureStars(){var box=qs('.galaxyBox');if(!box||box.dataset.stars==='1')return;box.dataset.stars='1';var frag=document.createDocumentFragment();for(var i=0;i<52;i++){var s=document.createElement('i');s.className='galaxySpark';s.style.left=(8+Math.random()*84)+'%';s.style.top=(10+Math.random()*78)+'%';s.style.animationDelay=(Math.random()*3.2)+'s';s.style.animationDuration=(2.4+Math.random()*2.4)+'s';s.style.background=colors[i%colors.length];frag.appendChild(s)}box.appendChild(frag)}
+      function buildPhotos(){var box=qs('#photoOrbit');if(!box)return;if(qsa('.photoCard').length===photos.length){layoutPhotos();return}box.innerHTML='';enlargedCard=null;photos.forEach(function(src,i){var card=document.createElement('div');card.className='photoCard';card.innerHTML='<img alt="memory '+(i+1)+'"><div class="fallback">Memory '+(i+1)+'<br>照片加载中</div>';var img=card.querySelector('img');img.onload=function(){card.classList.add('loaded');layoutPhotos()};img.onerror=function(){card.classList.remove('loaded');var fb=card.querySelector('.fallback');if(fb)fb.innerHTML='Memory '+(i+1)+'<br>图片路径未找到<br><span style="font-size:10px;opacity:.65">'+src+'</span>';layoutPhotos()};img.src=src;card.onclick=function(e){togglePhoto(card,e)};box.appendChild(card)});layoutPhotos()}
+      function layoutPhotos(){var cards=qsa('.photoCard');var box=qs('#photoOrbit');if(!box||!cards.length)return;var rect=box.getBoundingClientRect();var radiusX=Math.max(200,rect.width*.31);var radiusY=Math.max(90,rect.height*.18);cards.forEach(function(card,i){if(card===enlargedCard)return;var a=orbitTick+i/cards.length*Math.PI*2;var x=Math.cos(a)*radiusX;var y=Math.sin(a*1.35)*radiusY;var depth=Math.sin(a);var scale=.72+(depth+1)*.22;card.style.opacity=String(.58+(depth+1)*.18);card.style.transform='translate3d('+x+'px,'+y+'px,0) rotateY(0deg) rotateZ('+(Math.sin(a)*2)+'deg) scale('+scale+')';card.style.zIndex=String(Math.round((depth+1)*100))})}
+      function togglePhoto(card,e){if(enlargedCard===card){cherish(e.clientX,e.clientY);return}if(enlargedCard)enlargedCard.classList.remove('enlarged','cherished');enlargedCard=card;card.classList.add('enlarged');card.style.opacity='1';card.style.zIndex='999';card.style.transform='translate3d(0,0,0) rotateY(0deg) rotateZ(0deg) scale(2.18)';toast('MEMORY LOCKED · 再次点击珍藏回忆')}
+      function cherish(x,y){var parent=qs('.galaxyBox');if(!parent)return;var rect=parent.getBoundingClientRect();var cx=x-rect.left,cy=y-rect.top;if(enlargedCard)enlargedCard.classList.add('cherished');flash(parent,cx,cy);var end=performance.now()+3000;function loop(){if(performance.now()>end)return;firework(parent,rect.width*(.18+Math.random()*.64),rect.height*(.16+Math.random()*.46),26+Math.floor(Math.random()*28),.62+Math.random()*.48);setTimeout(loop,420+Math.random()*220)}loop();confetti(parent,rect.width,rect.height,110);setTimeout(function(){confetti(parent,rect.width,rect.height,70)},900);setTimeout(function(){toast('回忆被珍藏')},1850);setTimeout(function(){if(enlargedCard)enlargedCard.classList.remove('enlarged','cherished');enlargedCard=null;layoutPhotos()},3300)}
+      function flash(parent,x,y){var f=document.createElement('div');f.className='screenFlash';f.style.setProperty('--x',x+'px');f.style.setProperty('--y',y+'px');parent.appendChild(f);setTimeout(function(){f.remove()},850)}
+      function firework(parent,x,y,count,scale){var shapes=['','star','flower'];for(var i=0;i<count;i++){var dot=document.createElement('span');dot.className='fireworkDot '+shapes[Math.floor(Math.random()*shapes.length)];var color=colors[Math.floor(Math.random()*colors.length)];var size=(3+Math.random()*9)*scale;dot.style.color=color;dot.style.background=color;dot.style.width=size+'px';dot.style.height=size+'px';dot.style.left=x+'px';dot.style.top=y+'px';var angle=Math.random()*Math.PI*2;var dist=(70+Math.random()*320)*scale;dot.style.setProperty('--fx',Math.cos(angle)*dist+'px');dot.style.setProperty('--fy',Math.sin(angle)*dist+'px');dot.style.animationDuration=(1.05+Math.random()*.85)+'s';parent.appendChild(dot);setTimeout((function(el){return function(){el.remove()}})(dot),2100)}}
+      function confetti(parent,w,h,count){var shapes=['strip','square','circle','triangle','heart'];for(var i=0;i<count;i++){var c=document.createElement('span');var shape=shapes[Math.floor(Math.random()*shapes.length)];c.className='confettiPiece '+shape;var a=colors[Math.floor(Math.random()*colors.length)],b=colors[Math.floor(Math.random()*colors.length)];c.style.left=Math.random()*w+'px';c.style.top=(-40-Math.random()*130)+'px';if(shape==='triangle'){c.style.borderBottomColor=a}else{c.style.background=shape==='strip'?'linear-gradient(180deg,'+a+','+b+')':a}c.style.scale=String(.72+Math.random()*1.35);c.style.setProperty('--cx',((Math.random()-.5)*330)+'px');c.style.setProperty('--cy',(h+140+Math.random()*300)+'px');c.style.setProperty('--cr',((Math.random()-.5)*1260)+'deg');c.style.animationDelay=(Math.random()*.42)+'s';c.style.animationDuration=(1.9+Math.random()*1.45)+'s';parent.appendChild(c);setTimeout((function(el){return function(){el.remove()}})(c),3600)}}
+      function toast(text){var parent=qs('.galaxyBox');if(!parent)return;var t=document.createElement('div');t.className='memoryToast';t.textContent=text;parent.appendChild(t);setTimeout(function(){t.remove()},1800)}
+      function addUploaded(files){var arr=Array.prototype.slice.call(files||[]).filter(function(f){return f.type&&f.type.indexOf('image/')===0});if(!arr.length)return;arr.forEach(function(f){photos.push(URL.createObjectURL(f))});enlargedCard=null;buildPhotos();toast('NEW MEMORY ADDED')}
+      qs('#realUpload').addEventListener('change',function(e){addUploaded(e.target.files)});
+      function loop(){orbitTick+=.0018;if(qs('#real').classList.contains('active')&&!enlargedCard)layoutPhotos();requestAnimationFrame(loop)}
+      buildPhotos();ensureStars();loop();
+    })();
+  </script>
+</body>
+</html>
