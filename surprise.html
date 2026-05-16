@@ -1,0 +1,1847 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gate 03 · Surprise · CC’s Bakery Lab</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#040814;
+      --panel:rgba(9,10,28,.74);
+      --line:rgba(120,112,180,.36);
+      --text:#f5efdf;
+      --muted:#cfc6d8;
+      --gold:#f3d98c;
+      --violet:#caa9ff;
+      --cyan:#92d7de;
+      --shadow:0 20px 60px rgba(0,0,0,.34);
+
+      --panel-top-pad:34px;
+      --kicker-h:28px;
+      --title-h:90px;
+      --head-gap:18px;
+    }
+
+    *{
+      box-sizing:border-box;
+    }
+
+    html,body{
+      margin:0;
+      padding:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:"Noto Serif SC","PingFang SC","Microsoft YaHei",serif;
+      overflow-x:hidden;
+    }
+
+    body{
+      min-height:100vh;
+      background:
+        radial-gradient(circle at 14% 18%, rgba(20,145,122,.18), transparent 22%),
+        radial-gradient(circle at 72% 18%, rgba(112,89,214,.18), transparent 26%),
+        radial-gradient(circle at 82% 82%, rgba(112,89,214,.15), transparent 24%),
+        radial-gradient(circle at 32% 62%, rgba(8,92,120,.12), transparent 26%),
+        linear-gradient(180deg,#030711 0%, #060917 44%, #060815 100%);
+      position:relative;
+    }
+
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      background-image:
+        radial-gradient(circle at 8% 12%, rgba(255,255,255,.7) 0 1px, transparent 1.7px),
+        radial-gradient(circle at 22% 30%, rgba(255,255,255,.55) 0 1.2px, transparent 2px),
+        radial-gradient(circle at 41% 19%, rgba(255,255,255,.65) 0 1.1px, transparent 1.9px),
+        radial-gradient(circle at 57% 11%, rgba(255,255,255,.52) 0 1px, transparent 1.7px),
+        radial-gradient(circle at 76% 26%, rgba(255,255,255,.68) 0 1px, transparent 1.8px),
+        radial-gradient(circle at 90% 15%, rgba(255,255,255,.55) 0 1.1px, transparent 1.8px),
+        radial-gradient(circle at 17% 56%, rgba(255,255,255,.4) 0 1px, transparent 1.8px),
+        radial-gradient(circle at 63% 49%, rgba(255,255,255,.44) 0 1px, transparent 1.8px),
+        radial-gradient(circle at 84% 68%, rgba(255,255,255,.52) 0 1.1px, transparent 1.8px);
+      opacity:.55;
+      pointer-events:none;
+      z-index:0;
+    }
+
+    .page-shell{
+      position:relative;
+      z-index:2;
+      padding:40px 34px 56px;
+      min-height:100vh;
+    }
+
+    .top-banner{
+      border:1px solid rgba(84,132,130,.42);
+      border-radius:32px;
+      padding:22px 30px 26px;
+      background:linear-gradient(180deg, rgba(6,13,20,.92), rgba(4,10,18,.82));
+      box-shadow:inset 0 0 0 1px rgba(111,156,152,.08);
+      max-width:1160px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .top-banner::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(circle at 15% 20%, rgba(27,166,147,.12), transparent 25%),
+        radial-gradient(circle at 85% 80%, rgba(37,88,177,.1), transparent 28%);
+      pointer-events:none;
+    }
+
+    .gate-line{
+      position:relative;
+      z-index:2;
+      display:block;
+      font-size:14px;
+      line-height:1;
+      letter-spacing:.42em;
+      text-transform:uppercase;
+      color:#b7b4b2;
+      margin-bottom:18px;
+      white-space:nowrap;
+    }
+
+    .page-title{
+      position:relative;
+      z-index:2;
+      font-family:"Cormorant Garamond","Noto Serif SC",serif;
+      font-size:76px;
+      line-height:1.02;
+      font-weight:600;
+      color:#f4eddd;
+      letter-spacing:.01em;
+      white-space:nowrap;
+      display:flex;
+      align-items:baseline;
+      gap:14px;
+      flex-wrap:nowrap;
+    }
+
+    .return-btn{
+      position:absolute;
+      top:40px;
+      right:34px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:146px;
+      height:64px;
+      padding:0 24px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.18);
+      background:rgba(20,20,35,.42);
+      color:#f3ebdd;
+      text-decoration:none;
+      font-size:18px;
+      box-shadow:0 10px 30px rgba(0,0,0,.18), inset 0 0 0 1px rgba(255,255,255,.03);
+      backdrop-filter:blur(8px);
+      z-index:4;
+    }
+
+    .workspace{
+      margin-top:34px;
+      display:grid;
+      grid-template-columns:438px minmax(700px,1fr);
+      gap:26px;
+      align-items:start;
+    }
+
+    .panel{
+      background:linear-gradient(180deg, rgba(11,10,30,.92), rgba(5,7,20,.88));
+      border:1px solid var(--line);
+      border-radius:32px;
+      box-shadow:var(--shadow);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .panel::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(circle at 78% 16%, rgba(74,62,129,.15), transparent 28%),
+        radial-gradient(circle at 24% 70%, rgba(21,122,122,.08), transparent 24%);
+      pointer-events:none;
+    }
+
+    .left-panel{
+      padding:var(--panel-top-pad) 30px 30px;
+      min-height:720px;
+    }
+
+    .main-panel{
+      padding:0;
+      min-height:720px;
+      position:relative;
+    }
+
+    .meta-group,
+    .scene-head{
+      display:grid;
+      grid-template-rows:var(--kicker-h) var(--title-h);
+      row-gap:var(--head-gap);
+      margin:0 0 22px;
+      align-content:start;
+      position:relative;
+      z-index:2;
+    }
+
+    .meta-kicker{
+      height:var(--kicker-h);
+      line-height:var(--kicker-h);
+      font-size:13px;
+      letter-spacing:.34em;
+      text-transform:uppercase;
+      color:#b8b1b9;
+      white-space:nowrap;
+    }
+
+    .meta-title{
+      min-height:var(--title-h);
+      display:flex;
+      align-items:flex-start;
+      font-family:"Cormorant Garamond","Noto Serif SC",serif;
+      font-weight:600;
+      color:#f4edde;
+      margin:0;
+      white-space:nowrap;
+      overflow:hidden;
+    }
+
+    .meta-title.notice-title{
+      font-size:64px;
+      line-height:1.02;
+    }
+
+    .meta-title.scene-title{
+      font-size:64px;
+      line-height:1.04;
+    }
+
+    .meta-title.step-title{
+      font-size:58px;
+      line-height:1.04;
+    }
+
+    .notice-box{
+      margin-top:2px;
+      background:linear-gradient(90deg, rgba(47,34,80,.58), rgba(13,20,39,.72));
+      border-left:4px solid rgba(214,184,255,.75);
+      border-radius:0 20px 20px 0;
+      padding:22px 24px;
+      color:#f4efdf;
+      font-size:18px;
+      line-height:1.86;
+      min-height:180px;
+    }
+
+    .date-purple{
+      color:var(--violet);
+      font-weight:700;
+    }
+
+    .status-card{
+      margin-top:26px;
+      border:1px solid rgba(145,138,190,.2);
+      border-radius:24px;
+      background:rgba(6,9,18,.58);
+      padding:22px 22px 24px;
+      min-height:180px;
+      color:#f0ead9;
+      font-size:18px;
+      line-height:1.9;
+    }
+
+    .status-card strong{
+      color:var(--gold);
+    }
+
+    .status-card .status-step{
+      display:block;
+      margin-top:2px;
+      color:#f1ebda;
+    }
+
+    .dots{
+      position:absolute;
+      top:28px;
+      left:36px;
+      z-index:5;
+      display:flex;
+      gap:12px;
+      pointer-events:none;
+    }
+
+    .dot{
+      width:16px;
+      height:16px;
+      border-radius:50%;
+      background:rgba(151,145,182,.3);
+      box-shadow:0 0 0 1px rgba(255,255,255,.03);
+    }
+
+    .dot.active{
+      background:#f2d98e;
+    }
+
+    .dot.done{
+      background:#92ddd7;
+    }
+
+    .scene-wrap{
+      border:0;
+      border-radius:32px;
+      padding:var(--panel-top-pad) 34px 34px;
+      background:
+        radial-gradient(circle at 65% 18%, rgba(160,145,196,.2), transparent 22%),
+        radial-gradient(circle at 30% 85%, rgba(14,110,133,.14), transparent 24%),
+        linear-gradient(180deg, rgba(8,12,30,.74), rgba(6,8,22,.68));
+      min-height:720px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .scene-wrap::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(circle at 87% 26%, rgba(255,255,255,.05), transparent 15%),
+        radial-gradient(circle at 28% 60%, rgba(255,255,255,.03), transparent 20%);
+      pointer-events:none;
+    }
+
+    .scene-desc{
+      position:relative;
+      z-index:2;
+      font-size:18px;
+      color:#d5d0dc;
+      line-height:1.9;
+      margin:0 0 26px;
+    }
+
+    .special-line{
+      position:relative;
+      z-index:2;
+      font-size:19px;
+      font-weight:700;
+      line-height:1.85;
+      margin:12px 0 28px;
+      color:#f1eadb;
+    }
+
+    .special-line .special-gold{
+      background:linear-gradient(180deg,#fff3b9 0%, #f7d887 28%, #d3a44d 70%, #f7e6ab 100%);
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+      font-weight:700;
+    }
+
+    .btn-row{
+      display:flex;
+      gap:16px;
+      flex-wrap:wrap;
+      position:relative;
+      z-index:2;
+    }
+
+    .btn{
+      border:none;
+      border-radius:999px;
+      padding:0 28px;
+      height:64px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      font-size:18px;
+      color:#f1ead8;
+      cursor:pointer;
+      transition:transform .18s ease, box-shadow .18s ease, opacity .18s ease, filter .18s ease;
+      background:linear-gradient(180deg, rgba(82,96,116,.8), rgba(76,82,104,.8));
+      box-shadow:inset 0 0 0 1px rgba(143,220,220,.5), 0 6px 20px rgba(0,0,0,.18);
+    }
+
+    .btn:hover{
+      transform:translateY(-1px);
+      filter:brightness(1.04);
+    }
+
+    .btn.secondary{
+      background:linear-gradient(180deg, rgba(92,88,112,.82), rgba(80,74,100,.82));
+      box-shadow:inset 0 0 0 1px rgba(160,142,197,.42);
+    }
+
+    .options-grid{
+      display:grid;
+      grid-template-columns:repeat(4, minmax(0,1fr));
+      gap:18px;
+      position:relative;
+      z-index:2;
+    }
+
+    .option-card{
+      border:1px solid rgba(133,130,165,.24);
+      border-radius:28px;
+      background:linear-gradient(180deg, rgba(19,22,41,.84), rgba(11,13,27,.84));
+      padding:18px;
+      min-height:264px;
+      cursor:pointer;
+      transition:transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .option-card:hover{
+      transform:translateY(-2px);
+      border-color:rgba(194,175,109,.58);
+      box-shadow:0 12px 28px rgba(0,0,0,.18);
+    }
+
+    .option-card.selected{
+      border-color:rgba(243,217,140,.78);
+      box-shadow:inset 0 0 0 1px rgba(243,217,140,.2), 0 10px 30px rgba(0,0,0,.18);
+    }
+
+    .option-card.shape-card{
+      min-height:330px;
+    }
+
+    .option-card.cream-row{
+      min-height:auto;
+      display:grid;
+      grid-template-columns:96px minmax(250px,420px) 1fr;
+      align-items:center;
+      gap:24px;
+      padding:22px 28px;
+      border-radius:30px;
+    }
+
+    .swatch{
+      width:100%;
+      height:86px;
+      border-radius:22px;
+      box-shadow:inset 0 8px 14px rgba(255,255,255,.06), inset 0 -10px 12px rgba(0,0,0,.06);
+      margin-bottom:18px;
+      border:1px solid rgba(255,255,255,.05);
+    }
+
+    .option-image-wrap{
+      width:100%;
+      aspect-ratio:1/1;
+      border-radius:22px;
+      background:#0a0f21;
+      padding:12px;
+      margin-bottom:18px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.04);
+    }
+
+    .option-image-wrap img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      object-position:center;
+      border-radius:14px;
+      display:block;
+      background:#0c0f1e;
+    }
+
+    .image-missing{
+      color:#8f879e;
+      font-size:14px;
+      letter-spacing:.05em;
+    }
+
+    .option-name{
+      font-size:28px;
+      line-height:1.22;
+      margin:0 0 10px;
+      color:#f4eddd;
+      font-weight:600;
+      word-break:break-word;
+    }
+
+    .option-card.cream-row .option-name{
+      margin:0;
+      font-size:30px;
+      white-space:nowrap;
+      word-break:normal;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .option-desc{
+      color:#c8c2d0;
+      font-size:16px;
+      line-height:1.65;
+      margin:0;
+    }
+
+    .option-card.cream-row .option-desc{
+      margin:0;
+      font-size:17px;
+      line-height:1.7;
+      text-align:left;
+    }
+
+    .cream-no{
+      font-family:"Cormorant Garamond",serif;
+      font-size:64px;
+      color:rgba(235,208,126,.82);
+      line-height:1;
+      text-align:center;
+      letter-spacing:.05em;
+    }
+
+    .reveal-box{
+      margin-top:24px;
+      position:relative;
+      z-index:2;
+      border-radius:28px;
+      border:1px solid rgba(140,134,185,.34);
+      background:
+        radial-gradient(circle at 85% 35%, rgba(14,111,133,.12), transparent 20%),
+        linear-gradient(90deg, rgba(74,68,103,.7), rgba(17,23,43,.7));
+      padding:26px 26px 24px;
+    }
+
+    .reveal-attr{
+      font-size:22px;
+      font-weight:700;
+      color:#f1d891;
+      margin-bottom:14px;
+    }
+
+    .reveal-quote{
+      font-size:18px;
+      color:#f1ece0;
+      line-height:1.85;
+      margin-bottom:20px;
+    }
+
+    .verdict-list{
+      font-size:18px;
+      line-height:1.95;
+      margin:18px 0 18px;
+      color:#f0ead9;
+    }
+
+    .verdict-list strong{
+      color:#f5eedc;
+    }
+
+    .verdict-banner{
+      font-size:24px;
+      line-height:1.7;
+      color:#f5efdf;
+      margin:12px 0 20px;
+    }
+
+    .selected-summary{
+      font-size:20px;
+      line-height:1.9;
+      color:#f0ebdf;
+      margin-bottom:18px;
+    }
+
+    .action-box{
+      margin-top:18px;
+      display:flex;
+      align-items:center;
+      gap:22px;
+      flex-wrap:wrap;
+      padding:18px 0 6px;
+    }
+
+    .action-box img{
+      width:92px;
+      height:92px;
+      object-fit:contain;
+      display:block;
+      filter:drop-shadow(0 10px 18px rgba(0,0,0,.2));
+    }
+
+    .action-result{
+      font-size:18px;
+      color:#f5f0e2;
+      line-height:1.8;
+      max-width:680px;
+    }
+
+    .hidden{
+      display:none !important;
+    }
+
+    .fullscreen-scene{
+      position:fixed;
+      inset:0;
+      z-index:60;
+      background:
+        radial-gradient(circle at 18% 22%, rgba(18,145,124,.14), transparent 18%),
+        radial-gradient(circle at 82% 18%, rgba(94,74,194,.16), transparent 24%),
+        radial-gradient(circle at 70% 72%, rgba(34,86,180,.14), transparent 24%),
+        linear-gradient(180deg,#040712 0%, #060917 100%);
+      padding:42px 44px 50px;
+      overflow:auto;
+    }
+
+    .fullscreen-card{
+      border:1px solid rgba(128,120,179,.36);
+      border-radius:34px;
+      background:
+        radial-gradient(circle at 26% 22%, rgba(255,255,255,.06), transparent 16%),
+        radial-gradient(circle at 74% 25%, rgba(168,147,216,.12), transparent 24%),
+        linear-gradient(180deg, rgba(7,9,24,.88), rgba(8,10,24,.92));
+      padding:42px 44px 44px;
+      min-height:calc(100vh - 92px);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .full-title{
+      font-size:76px;
+      line-height:1.05;
+      margin:8px 0 26px;
+      color:#f5e7ad;
+      font-weight:600;
+      font-family:"Cormorant Garamond","Noto Serif SC",serif;
+    }
+
+    .blessing-grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:24px;
+      margin:24px 0 28px;
+    }
+
+    .blessing-card{
+      position:relative;
+      border:1px solid rgba(140,133,184,.36);
+      border-radius:28px;
+      padding:28px 30px;
+      min-height:280px;
+      background:linear-gradient(180deg, rgba(24,26,48,.86), rgba(10,12,28,.9));
+      overflow:hidden;
+      box-shadow:0 14px 30px rgba(0,0,0,.16);
+    }
+
+    .blessing-card::before{
+      content:"";
+      position:absolute;
+      inset:-40% -10%;
+      background:
+        radial-gradient(circle, rgba(255,243,191,.8) 0 1px, transparent 2px) 0 0/90px 90px,
+        radial-gradient(circle, rgba(173,241,255,.7) 0 1.2px, transparent 2px) 40px 36px/100px 100px,
+        radial-gradient(circle, rgba(247,215,135,.75) 0 1px, transparent 2px) 10px 56px/110px 110px;
+      opacity:.32;
+      animation:sparkleDrift 10s linear infinite;
+      pointer-events:none;
+    }
+
+    @keyframes sparkleDrift{
+      from{transform:translateY(0)}
+      to{transform:translateY(-40px)}
+    }
+
+    .blessing-name{
+      font-size:30px;
+      color:#f3d98f;
+      margin:0 0 18px;
+      font-weight:700;
+    }
+
+    .blessing-text{
+      font-size:18px;
+      line-height:1.9;
+      color:#f5efde;
+    }
+
+    .cake-stage{
+      min-height:calc(100vh - 92px);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:flex-start;
+      text-align:center;
+      position:relative;
+    }
+
+    .cake-title{
+      font-family:"Cormorant Garamond","Noto Serif SC",serif;
+      font-size:72px;
+      line-height:1.05;
+      color:#f4e6af;
+      margin:4px 0 12px;
+    }
+
+    .cake-subtitle{
+      font-size:20px;
+      line-height:1.9;
+      color:#f4edde;
+      margin:0 0 26px;
+    }
+
+    .magic-cake{
+      position:relative;
+      width:650px;
+      height:560px;
+      margin:18px auto 12px;
+      filter:drop-shadow(0 30px 40px rgba(0,0,0,.28));
+    }
+
+    .orbit{
+      position:absolute;
+      border:1px dashed rgba(149,214,255,.45);
+      border-radius:50%;
+      left:50%;
+      top:55%;
+      transform:translate(-50%,-50%);
+      opacity:.42;
+      animation:orbitSpin 9s linear infinite;
+    }
+
+    .orbit.one{
+      width:520px;
+      height:180px;
+    }
+
+    .orbit.two{
+      width:590px;
+      height:220px;
+      animation-duration:13s;
+    }
+
+    @keyframes orbitSpin{
+      from{transform:translate(-50%,-50%) rotate(0)}
+      to{transform:translate(-50%,-50%) rotate(360deg)}
+    }
+
+    .spark-particle{
+      position:absolute;
+      width:7px;
+      height:7px;
+      border-radius:50%;
+      background:radial-gradient(circle, #fffbd6 0%, #f5d785 55%, rgba(245,215,133,0) 75%);
+      box-shadow:0 0 16px rgba(245,215,133,.8);
+      animation:twinkle 2.6s ease-in-out infinite;
+    }
+
+    @keyframes twinkle{
+      0%,100%{transform:scale(.65);opacity:.45}
+      50%{transform:scale(1.25);opacity:1}
+    }
+
+    .tier{
+      position:absolute;
+      left:50%;
+      transform:translateX(-50%);
+      border-radius:26px 26px 34px 34px;
+      background:
+        linear-gradient(180deg, rgba(243,243,255,.96), rgba(226,232,255,.88) 34%, rgba(182,165,255,.72) 64%, rgba(120,102,214,.55) 100%);
+      box-shadow:
+        inset 0 -18px 22px rgba(125,101,217,.22),
+        inset 0 14px 20px rgba(255,255,255,.38),
+        0 14px 24px rgba(0,0,0,.16);
+      border:1px solid rgba(255,255,255,.26);
+      overflow:visible;
+    }
+
+    .tier::before{
+      content:"";
+      position:absolute;
+      left:5%;
+      right:5%;
+      top:12px;
+      height:24px;
+      border-radius:50%;
+      background:linear-gradient(180deg, rgba(255,255,255,.92), rgba(238,240,255,.48));
+      filter:blur(.2px);
+    }
+
+    .tier::after{
+      content:"";
+      position:absolute;
+      inset:8px;
+      border-radius:22px 22px 30px 30px;
+      background:
+        radial-gradient(circle at 18% 22%, rgba(255,255,255,.16) 0 2px, transparent 2.8px),
+        radial-gradient(circle at 46% 48%, rgba(246,214,129,.45) 0 2px, transparent 3px),
+        radial-gradient(circle at 72% 30%, rgba(163,244,255,.42) 0 2px, transparent 3px),
+        radial-gradient(circle at 80% 64%, rgba(255,255,255,.18) 0 2px, transparent 3px);
+      opacity:.85;
+      pointer-events:none;
+    }
+
+    .tier.bottom{
+      bottom:52px;
+      width:470px;
+      height:152px;
+    }
+
+    .tier.middle{
+      bottom:182px;
+      width:340px;
+      height:128px;
+    }
+
+    .tier.top{
+      bottom:292px;
+      width:220px;
+      height:108px;
+    }
+
+    .cake-plate{
+      position:absolute;
+      left:50%;
+      bottom:20px;
+      transform:translateX(-50%);
+      width:560px;
+      height:46px;
+      border-radius:50%;
+      background:linear-gradient(180deg, rgba(235,239,255,.88), rgba(152,163,215,.52));
+      box-shadow:0 16px 30px rgba(0,0,0,.26);
+    }
+
+    .candle{
+      position:absolute;
+      width:10px;
+      height:42px;
+      background:linear-gradient(180deg, #fff6cf, #ecc879);
+      border-radius:6px;
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.28);
+    }
+
+    .flame{
+      position:absolute;
+      left:50%;
+      top:-16px;
+      width:12px;
+      height:18px;
+      transform:translateX(-50%);
+      background:radial-gradient(circle at 50% 68%, #fff7c5 0%, #ffd86f 48%, #ff9649 72%, rgba(255,130,55,.2) 88%, transparent 100%);
+      border-radius:50% 50% 55% 55% / 65% 65% 40% 40%;
+      animation:flicker .9s ease-in-out infinite;
+      filter:drop-shadow(0 0 8px rgba(255,204,115,.8));
+    }
+
+    @keyframes flicker{
+      0%,100%{transform:translateX(-50%) scale(.95)}
+      50%{transform:translateX(-50%) scale(1.08)}
+    }
+
+    .cake-extinguished .flame{
+      display:none;
+    }
+
+    .fireworks{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      overflow:hidden;
+      z-index:5;
+      display:none;
+    }
+
+    .fireworks.active{
+      display:block;
+    }
+
+    .firework{
+      position:absolute;
+      width:6px;
+      height:6px;
+      border-radius:50%;
+      background:#fff;
+      animation:boom 1.5s ease-out infinite;
+    }
+
+    @keyframes boom{
+      0%{
+        transform:scale(.2);
+        opacity:1;
+        box-shadow:
+          0 0 0 0 rgba(255,0,130,.85),
+          0 0 0 0 rgba(255,212,90,.85),
+          0 0 0 0 rgba(112,219,255,.9),
+          0 0 0 0 rgba(133,255,194,.85);
+      }
+      100%{
+        transform:scale(1);
+        opacity:0;
+        box-shadow:
+          0 -70px 0 18px rgba(255,0,130,0),
+          65px 0 0 14px rgba(255,212,90,0),
+          -55px 35px 0 15px rgba(112,219,255,0),
+          30px 62px 0 13px rgba(133,255,194,0);
+      }
+    }
+
+    .wish-scroll{
+      max-width:860px;
+      margin:36px auto 0;
+      font-size:30px;
+      line-height:1.95;
+      color:#f5eddc;
+      opacity:0;
+      transform:translateY(24px);
+      transition:all .8s ease;
+      white-space:pre-line;
+    }
+
+    .wish-scroll.show{
+      opacity:1;
+      transform:translateY(0);
+    }
+
+    .curtain-overlay{
+      position:fixed;
+      inset:0;
+      z-index:100;
+      background:#0c0213;
+      overflow:hidden;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .curtain-title{
+      position:absolute;
+      z-index:4;
+      font-family:"Cormorant Garamond","Noto Serif SC",serif;
+      font-size:112px;
+      line-height:1;
+      font-weight:700;
+      color:#f4ecdc;
+      white-space:nowrap;
+      letter-spacing:.01em;
+      opacity:0;
+      animation:curtainTitleIn .9s ease forwards .2s, curtainTitleOut .8s ease forwards 3.2s;
+      text-shadow:0 0 18px rgba(255,240,210,.12);
+    }
+
+    @keyframes curtainTitleIn{
+      to{opacity:1}
+    }
+
+    @keyframes curtainTitleOut{
+      to{opacity:0}
+    }
+
+    .curtain-half{
+      position:absolute;
+      top:0;
+      bottom:0;
+      width:50.3%;
+      background:
+        linear-gradient(90deg, #4b002c 0%, #5f0038 18%, #3d001f 52%, #65003a 82%, #51002e 100%);
+      box-shadow:inset -10px 0 25px rgba(0,0,0,.2);
+      overflow:hidden;
+    }
+
+    .curtain-half::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        repeating-linear-gradient(90deg,
+          rgba(0,0,0,.12) 0 22px,
+          rgba(255,255,255,.03) 22px 44px);
+      opacity:.95;
+      mix-blend-mode:screen;
+    }
+
+    .curtain-left{
+      left:0;
+      transform:translateX(0);
+      animation:slideLeft 2.8s linear forwards 3.8s;
+    }
+
+    .curtain-right{
+      right:0;
+      transform:translateX(0);
+      animation:slideRight 2.8s linear forwards 3.8s;
+    }
+
+    @keyframes slideLeft{
+      to{transform:translateX(-104%)}
+    }
+
+    @keyframes slideRight{
+      to{transform:translateX(104%)}
+    }
+
+    .curtain-sparkles{
+      position:absolute;
+      inset:0;
+      z-index:3;
+      pointer-events:none;
+    }
+
+    .curtain-sparkles span{
+      position:absolute;
+      width:8px;
+      height:8px;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(255,245,201,1) 0%, rgba(255,222,118,.9) 55%, rgba(255,222,118,0) 76%);
+      box-shadow:0 0 22px rgba(255,222,118,.85);
+      opacity:0;
+      animation:curtainTwinkle 1.7s ease-in-out infinite;
+    }
+
+    @keyframes curtainTwinkle{
+      0%,100%{opacity:.18; transform:scale(.55)}
+      50%{opacity:1; transform:scale(1.3)}
+    }
+
+    .fade-app{
+      animation:appFadeIn 1s ease forwards;
+    }
+
+    @keyframes appFadeIn{
+      from{opacity:0}
+      to{opacity:1}
+    }
+
+    @media (max-width:1500px){
+      .workspace{
+        grid-template-columns:400px 1fr;
+      }
+
+      .page-title{
+        font-size:68px;
+      }
+
+      .meta-title.notice-title{
+        font-size:56px;
+      }
+
+      .meta-title.scene-title{
+        font-size:58px;
+      }
+
+      .meta-title.step-title{
+        font-size:54px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="curtain-overlay" id="curtainOverlay">
+    <div class="curtain-title">CC’s Bakery Lab</div>
+    <div class="curtain-sparkles" id="curtainSparkles"></div>
+    <div class="curtain-half curtain-left"></div>
+    <div class="curtain-half curtain-right"></div>
+  </div>
+
+  <a class="return-btn" href="./index.html">返回 Starport</a>
+
+  <div class="page-shell fade-app" id="app"></div>
+
+  <div class="fullscreen-scene hidden" id="blessingScene">
+    <div class="fullscreen-card">
+      <div class="full-title">解锁三位神的祝福</div>
+
+      <div class="blessing-grid">
+        <div class="blessing-card">
+          <h3 class="blessing-name">毒蘑菇之神</h3>
+          <div class="blessing-text">
+            不要害怕有毒。<br>
+            有些毒只是世界不懂你的味道。
+          </div>
+        </div>
+
+        <div class="blessing-card">
+          <h3 class="blessing-name">生气河豚之神</h3>
+          <div class="blessing-text">
+            生气不是坏事。<br>
+            它说明你还知道什么东西不该被随便对待。
+          </div>
+        </div>
+
+        <div class="blessing-card">
+          <h3 class="blessing-name">起飞萨摩耶之神</h3>
+          <div class="blessing-text">
+            快乐的时候不要太克制。<br>
+            能起飞就起飞，光轮 2000 一直在等你。
+          </div>
+        </div>
+      </div>
+
+      <div style="font-size:22px;line-height:1.9;color:#f5efdf;margin:20px 0 28px;">
+        请 CC 领取祝福，并许愿、吹蜡烛。
+      </div>
+
+      <button class="btn" style="min-width:340px" onclick="openCakeScene()">领取祝福，并许愿吹蜡烛</button>
+    </div>
+  </div>
+
+  <div class="fullscreen-scene hidden" id="cakeScene">
+    <div class="fullscreen-card cake-stage">
+      <div class="cake-title" id="cakeMainTitle">魔法蛋糕制作成功</div>
+      <div class="cake-subtitle" id="cakeSubtitle">请 CC 许愿、吹蜡烛。</div>
+
+      <div class="magic-cake" id="magicCake">
+        <div class="orbit one"></div>
+        <div class="orbit two"></div>
+        <div class="cake-plate"></div>
+        <div class="tier bottom"></div>
+        <div class="tier middle"></div>
+        <div class="tier top"></div>
+      </div>
+
+      <div class="btn-row" style="justify-content:center;margin-top:14px">
+        <button class="btn" id="wishBtn" onclick="blowCandles()">许愿并吹蜡烛</button>
+      </div>
+
+      <div class="fireworks" id="fireworksLayer"></div>
+
+      <div class="wish-scroll" id="wishText">
+22岁的CC
+不需要变成一个完全正确的大人
+而是获得一种新的魔法：
+允许自己有毒
+允许自己生气
+也允许自己快乐到起飞。
+最后仍然愿意认真地吃下一块属于自己的生日蛋糕
+
+祝 CC 22 岁
+仍然拥有被世界逗笑的能力
+被朋友接住的勇气
+被魔法偏爱的幸运
+
+最后的最后……
+想做回女巫的小屁孩
+随时都可以
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const state = {
+      phase: 'intro',
+      stepIndex: 0,
+      selections: {},
+      currentPick: null,
+      finalResult: null,
+      actionDone: false,
+      todaySpecial: null
+    };
+
+    const ATTRS = ['开心','治愈','起飞','冷静','有毒','祝福','生气'];
+
+    const stepMeta = [
+      {
+        key:'color',
+        kicker:'BAKING SEQUENCE',
+        title:'Step 1 · 选择颜色',
+        desc:'颜色是蛋糕的第一层咒语。它看起来只是颜色，其实会决定这块蛋糕的脾气。'
+      },
+      {
+        key:'flavor',
+        kicker:'BAKING SEQUENCE',
+        title:'Step 2 · 选择口味',
+        desc:'口味是真正容易踩雷的地方。越想点，越可能出事；越出事，越有故事。'
+      },
+      {
+        key:'shape',
+        kicker:'BAKING SEQUENCE',
+        title:'Step 3 · 选择图案',
+        desc:'图案不是装饰，是蛋糕的召唤阵。选中它，蛋糕就会开始长出自己的性格。'
+      },
+      {
+        key:'cream',
+        kicker:'BAKING SEQUENCE',
+        title:'Step 4 · 选择奶油',
+        desc:'奶油是最后一道封印。它不会提前说明自己会做什么，但它会悄悄改变最终命运。'
+      }
+    ];
+
+    const options = {
+      color: [
+        {id:'black', name:'黑色蛋糕', attr:'有毒', desc:'像午夜，独自吞下的情绪。', swatch:'#050505'},
+        {id:'red', name:'红色蛋糕', attr:'生气', desc:'看起来很热闹，但可能会把情绪点燃。', swatch:'#cb121e'},
+        {id:'purple', name:'紫色蛋糕', attr:'起飞', desc:'一看就不像会乖乖待在盘子里。', swatch:'#7646ff'},
+        {id:'green', name:'绿色蛋糕', attr:'起飞', desc:'有点怪，但怪得很有生命力。', swatch:'#2daa68'},
+        {id:'gold', name:'金色蛋糕', attr:'祝福', desc:'像生日愿望表面撒了一层金粉。', swatch:'#d9b13c'},
+        {id:'white', name:'白色蛋糕', attr:'治愈', desc:'像刚洗好的云，适合安静地吃一口。', swatch:'#f1efe8'},
+        {id:'blue', name:'蓝色蛋糕', attr:'冷静', desc:'适合把复杂的事情先放进冰箱。', swatch:'#3d63f1'},
+        {id:'pink', name:'粉色蛋糕', attr:'开心', desc:'不是幼稚，是快乐不想假装成熟。', swatch:'#ec67ab'}
+      ],
+
+      flavor: shuffle([
+        {id:'rosejam', name:'大马士革玫瑰酱', attr:'治愈', desc:'清晨采下来的玫瑰，会把坏心情慢慢喂好。'},
+        {id:'strawberry', name:'冬日草莓', attr:'开心', desc:'它会让人想起一些很轻、很亮的日子。'},
+        {id:'durian', name:'猫山王榴莲', attr:'起飞', desc:'打开盖子的瞬间，实验室开始倒计时。'},
+        {id:'crystalapple', name:'冰糖心苹果', attr:'开心', desc:'咔嚓一口，宇宙都变脆了。'},
+        {id:'blueberry', name:'花香蓝莓', attr:'冷静', desc:'像把夜晚折起来，放进蓝色玻璃瓶。'},
+        {id:'jumpcandy', name:'跳跳糖夹心', attr:'祝福', desc:'咬下去的时候，愿望会在舌尖放烟花。'},
+        {id:'coriander', name:'芹菜', attr:'有毒', desc:'看起来健康，所以更可疑。'},
+        {id:'burntmarsh', name:'烧焦棉花糖', attr:'生气', desc:'甜是甜的，但脾气也是脆的。'},
+        {id:'coconutjelly', name:'椰子冻', attr:'冷静', desc:'适合给过热的大脑降温。'},
+        {id:'dq', name:'DQ奥利奥冰激凌', attr:'起飞', desc:'浓到不像甜品，像一个起飞许可。'},
+        {id:'houttuynia', name:'鱼腥草', attr:'有毒', desc:'有人上头，有人退后。'},
+        {id:'littletea', name:'一点点红茶冰激凌', attr:'起飞', desc:'杯壁会结霜，快乐会升空。'},
+        {id:'soymilk', name:'清晨豆浆', attr:'开心', desc:'朴素，但会让人觉得今天还不错。'},
+        {id:'choco', name:'香浓可可', attr:'祝福', desc:'适合写进冬天，也适合写进生日。'},
+        {id:'lemon', name:'意大利柠檬酱', attr:'治愈', desc:'酸得明亮，像海边突然吹来的风。'},
+        {id:'fugu', name:'河豚刺身', attr:'生气', desc:'听起来很怪，但女巫说有些怪东西很温柔。'},
+        {id:'malaji', name:'重庆面馆辣子鸡', attr:'开心', desc:'不应该出现在蛋糕里，但出现了就很难拒绝。'},
+        {id:'eelfish', name:'舟山鳗鱼鲞', attr:'开心', desc:'来自海风、太阳和非常离谱的快乐。'},
+        {id:'fries', name:'麦麦没有炸透的薯条', attr:'生气', desc:'还没准备好，但已经被端上来了。'},
+        {id:'oyster', name:'黄油牡蛎', attr:'治愈', desc:'听起来很怪，但会把刺慢慢磨平。'},
+        {id:'tiramisu', name:'日落提拉米苏', attr:'起飞', desc:'吃完以后会很想抱抱世界。'},
+        {id:'snakecandy', name:'蛇形软糖', attr:'有毒', desc:'它不一定伤人，但会让故事变得复杂。'}
+      ]),
+
+      shape: shuffle([
+        {id:'weizai', name:'微仔', attr:'开心', desc:'它一出现，实验室就不再严肃。', img:'./assets/cake-shapes/weizai.png'},
+        {id:'rose', name:'玫瑰', attr:'祝福', desc:'不一定最完美，但一定被认真浇过水。', img:'./assets/cake-shapes/rose.png'},
+        {id:'samoyed', name:'萨摩耶', attr:'治愈', desc:'这不是图案，这是软乎乎的白色魔法。', img:'./assets/cake-shapes/samoyed.png'},
+        {id:'mushroom', name:'蘑菇', attr:'有毒', desc:'它看起来无辜，但森林不这么认为。', img:'./assets/cake-shapes/mushroom.png'},
+        {id:'moonboat', name:'月光小船', attr:'冷静', desc:'适合从今晚划到一条很远的河。', img:'./assets/cake-shapes/moonlightboat.png'},
+        {id:'nimbus', name:'光轮2000', attr:'起飞', desc:'不是装饰，是交通工具。', img:'./assets/cake-shapes/nimbus2000.png'},
+        {id:'prince', name:'小王子', attr:'祝福', desc:'他会认真看一朵花，也会认真看一个人。', img:'./assets/cake-shapes/thelittleprince.png'},
+        {id:'kitsune', name:'kitsune', attr:'生气', desc:'狐狸知道太多秘密，所以很容易不爽。', img:'./assets/cake-shapes/kitsune.png'}
+      ]),
+
+      cream: [
+        {id:'med', no:'01', name:'地中海奶油', effect:'cool-down', desc:'像海风一样宽容，适合给火气降温。'},
+        {id:'spring', no:'02', name:'初春记忆奶油', effect:'anti-poison', desc:'像春天刚开始时的光，会悄悄稀释危险。'},
+        {id:'yls', no:'03', name:'yls逗号奶油', effect:'comma', desc:'yls使用逗号时，说明事情不会那么简单。'},
+        {id:'cc-secret', no:'04', name:'CC一般不拿出来奶油', effect:'crazy-fly', desc:'一般不拿出来。一拿出来，实验室会响警报。'},
+        {id:'witch', no:'05', name:'女巫特调奶油', effect:'random', desc:'女巫本人也不完全确定它会变成什么。'}
+      ]
+    };
+
+    function shuffle(arr){
+      const copy = [...arr];
+      for(let i = copy.length - 1; i > 0; i--){
+        const j = Math.floor(randomSeeded(i + 17) * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function randomSeeded(extra = 0){
+      const bj = getBeijingDateObj();
+      const seed = bj.year * 10000 + (bj.month + 1) * 100 + bj.day + extra;
+      const x = Math.sin(seed) * 10000;
+      return x - Math.floor(x);
+    }
+
+    function pickTodaySpecial(){
+      const specials = [
+        '月光小船冷静蛋糕。适合深夜，也适合认真许愿。',
+        '光轮2000起飞蛋糕。建议系好围巾。',
+        '大马士革玫瑰治愈蛋糕。适合把心事慢慢放软。',
+        '香浓可可祝福蛋糕。适合认真过一个好生日。',
+        '冬日草莓开心蛋糕。适合收下今天的小快乐。',
+        '日落提拉米苏起飞蛋糕。适合在夜色里偷偷变勇敢。',
+        '白云奶油治愈蛋糕。适合给情绪盖一层柔软的被子。'
+      ];
+      const idx = Math.floor(randomSeeded(88) * specials.length);
+      return specials[idx];
+    }
+
+    function getBeijingDateObj(){
+      const now = new Date();
+      const beijing = new Date(now.toLocaleString('en-US', { timeZone:'Asia/Shanghai' }));
+      return {
+        year: beijing.getFullYear(),
+        month: beijing.getMonth(),
+        day: beijing.getDate()
+      };
+    }
+
+    function getDateText(){
+      const bj = getBeijingDateObj();
+      return `今天是中国北京时间 <span class="date-purple">${bj.year}年${bj.month + 1}月${bj.day}日</span>。`;
+    }
+
+    function isSeasonOpen(){
+      const bj = getBeijingDateObj();
+      const month = bj.month + 1;
+      return month === 5 || month === 6;
+    }
+
+    function getSeasonText(){
+      return isSeasonOpen()
+        ? '魔法原料已成熟，CC 可以选择制作并领取蛋糕。'
+        : '魔法原料还在生长……但女巫偷偷开了后门，允许 CC 试吃一口（保密！）。';
+    }
+
+    function getCurrentStep(){
+      return stepMeta[state.stepIndex];
+    }
+
+    function getOptionsForStep(){
+      const key = getCurrentStep().key;
+      return options[key];
+    }
+
+    function getStatusText(){
+      if(state.phase === 'intro'){
+        return `
+          <strong>实验尚未开始。</strong><br>
+          每一步都有 1 次重选机会。<br>
+          属性只会在选择后揭示。
+        `;
+      }
+
+      if(state.phase === 'step'){
+        const s = getCurrentStep();
+        const saved = state.selections[s.key];
+        const left = saved ? saved.reselectLeft : 1;
+        return `
+          <strong>实验启动。</strong><br>
+          <span class="status-step">当前步骤：${s.title}</span>
+          本步骤重选机会：<strong>${left}</strong> 次
+        `;
+      }
+
+      if(state.phase === 'verdict'){
+        return `
+          <strong>蛋糕结算完成。</strong><br>
+          最终属性：<strong>${state.finalResult.finalAttr}</strong>
+        `;
+      }
+
+      return '';
+    }
+
+    function renderApp(){
+      document.getElementById('app').innerHTML = `
+        <div class="top-banner">
+          <div class="gate-line">GATE 03 · SURPRISE</div>
+          <div class="page-title">
+            <span>CC’s Bakery Lab</span>
+            <span>|</span>
+            <span>魔法厨房实验室</span>
+          </div>
+        </div>
+
+        <div class="workspace">
+          <div class="panel left-panel">
+            <div class="meta-group">
+              <div class="meta-kicker">MAGICAL NOTICE</div>
+              <h2 class="meta-title notice-title">Tonight’s Cake Spell</h2>
+            </div>
+
+            <div class="notice-box">
+              ${getDateText()}<br><br>
+              ${getSeasonText()}
+            </div>
+
+            <div class="status-card">
+              ${getStatusText()}
+            </div>
+          </div>
+
+          <div class="panel main-panel">
+            <div class="dots">
+              <span class="dot ${state.stepIndex > 0 || state.phase === 'verdict' ? 'done' : 'active'}"></span>
+              <span class="dot ${state.stepIndex > 1 || state.phase === 'verdict' ? 'done' : state.stepIndex === 1 ? 'active' : ''}"></span>
+              <span class="dot ${state.stepIndex > 2 || state.phase === 'verdict' ? 'done' : state.stepIndex === 2 ? 'active' : ''}"></span>
+              <span class="dot ${state.stepIndex > 3 || state.phase === 'verdict' ? 'done' : state.stepIndex === 3 ? 'active' : ''}"></span>
+            </div>
+
+            ${state.phase === 'intro' ? renderIntro() : ''}
+            ${state.phase === 'step' ? renderStep() : ''}
+            ${state.phase === 'verdict' ? renderVerdict() : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderIntro(){
+      return `
+        <div class="scene-wrap">
+          <div class="scene-head">
+            <div class="meta-kicker">BEFORE BAKING</div>
+            <h2 class="meta-title scene-title">请阅读魔法烘焙规则</h2>
+          </div>
+
+          <p class="scene-desc">
+            这里不是普通蛋糕店。<br>
+            每一种材料都有隐藏属性：开心、治愈、起飞、冷静、有毒、祝福、生气……<br>
+            但每一种材料没有绝对的好坏：魔法之下能以毒攻毒，也能解锁意外惊喜……有时候危险越大，惊喜越大。<br>
+            每一步选择后，系统会显示属性；如果想更换材料，可以使用 1 次重选机会。
+          </p>
+
+          <div class="special-line">今日主推：<span class="special-gold">${state.todaySpecial}</span></div>
+
+          <div class="btn-row">
+            <button class="btn" onclick="startMaking()">开始制作</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderStep(){
+      const step = getCurrentStep();
+      const key = step.key;
+      const list = getOptionsForStep();
+      const saved = state.selections[key] || { reselectLeft: 1 };
+      const selectedId = state.currentPick?.id || saved.choice?.id || null;
+      const isCream = key === 'cream';
+
+      return `
+        <div class="scene-wrap">
+          <div class="scene-head">
+            <div class="meta-kicker">BAKING SEQUENCE</div>
+            <h2 class="meta-title step-title">${step.title}</h2>
+          </div>
+
+          <p class="scene-desc">${step.desc}</p>
+
+          <div class="${isCream ? '' : 'options-grid'}">
+            ${isCream
+              ? list.map(item => renderCreamRow(item, selectedId)).join('')
+              : list.map(item => renderOptionCard(item, key, selectedId)).join('')
+            }
+          </div>
+
+          ${state.currentPick ? renderRevealBox(saved) : ''}
+        </div>
+      `;
+    }
+
+    function renderOptionCard(item, key, selectedId){
+      const selected = item.id === selectedId ? 'selected' : '';
+
+      if(key === 'color'){
+        return `
+          <div class="option-card ${selected}" onclick="selectOption('${key}','${item.id}')">
+            <div class="swatch" style="background:${item.swatch}"></div>
+            <h3 class="option-name">${item.name}</h3>
+            <p class="option-desc">${item.desc}</p>
+          </div>
+        `;
+      }
+
+      if(key === 'shape'){
+        return `
+          <div class="option-card shape-card ${selected}" onclick="selectOption('${key}','${item.id}')">
+            <div class="option-image-wrap">
+              <img
+                src="${item.img}"
+                alt="${item.name}"
+                onerror="this.parentElement.innerHTML='<span class=&quot;image-missing&quot;>图片未加载</span>'"
+              >
+            </div>
+            <h3 class="option-name">${item.name}</h3>
+            <p class="option-desc">${item.desc}</p>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="option-card ${selected}" onclick="selectOption('${key}','${item.id}')">
+          <h3 class="option-name">${item.name}</h3>
+          <p class="option-desc">${item.desc}</p>
+        </div>
+      `;
+    }
+
+    function renderCreamRow(item, selectedId){
+      const selected = item.id === selectedId ? 'selected' : '';
+
+      return `
+        <div class="option-card cream-row ${selected}" style="margin-bottom:16px" onclick="selectOption('cream','${item.id}')">
+          <div class="cream-no">${item.no}</div>
+          <h3 class="option-name">${item.name}</h3>
+          <p class="option-desc">${item.desc}</p>
+        </div>
+      `;
+    }
+
+    function renderRevealBox(saved){
+      const pick = state.currentPick;
+      const reselectLeft = saved.reselectLeft ?? 1;
+
+      const quoteMap = {
+        '有毒':'危险不一定是坏事，它只是提醒你，这一口很有故事。',
+        '生气':'有些口味就是会激起脾气，也会让蛋糕更鲜活。',
+        '起飞':'这不是普通选择，这是会把蛋糕直接送上天的选择。',
+        '冷静':'有些成分天生会让世界安静一秒。',
+        '祝福':'它会把生日的好兆头往前轻轻推一把。',
+        '治愈':'它像一块柔软的布，能把尖锐的地方慢慢盖住。',
+        '开心':'有时候，蛋糕只是想让今天更好笑一点。'
+      };
+
+      return `
+        <div class="reveal-box">
+          <div class="reveal-attr">隐藏属性是：${pick.attr}</div>
+          <div class="reveal-quote">${quoteMap[pick.attr]}</div>
+          <div class="btn-row">
+            <button class="btn" onclick="confirmChoice()">确认，进入下一步</button>
+            ${reselectLeft > 0 ? `<button class="btn secondary" onclick="useReselect()">重选</button>` : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderVerdict(){
+      const f = state.finalResult;
+      const actionInfo = getActionInfo(f.finalAttr);
+
+      return `
+        <div class="scene-wrap">
+          <div class="scene-head">
+            <div class="meta-kicker">CAKE VERDICT</div>
+            <h2 class="meta-title scene-title">蛋糕判词生成中</h2>
+          </div>
+
+          <div class="verdict-banner">CC 的魔法蛋糕最终属性是：<strong style="color:#f2d98e">${f.finalAttr}</strong>。</div>
+
+          <div class="verdict-list">
+            颜色：<strong>${f.items.color.name}</strong><br>
+            口味：<strong>${f.items.flavor.name}</strong><br>
+            图案：<strong>${f.items.shape.name}</strong><br>
+            奶油：<strong>${f.items.cream.name}</strong>
+          </div>
+
+          <div class="selected-summary">
+            蛋糕判词：${f.message}
+          </div>
+
+          <div class="btn-row">
+            ${!state.actionDone ? `<button class="btn" onclick="triggerAction()">${actionInfo.button}</button>` : ''}
+          </div>
+
+          ${state.actionDone ? `
+            <div class="action-box">
+              ${actionInfo.img ? `<img src="${actionInfo.img}" alt="${actionInfo.alt}" onerror="this.style.display='none'">` : ''}
+              <div class="action-result">${actionInfo.result}</div>
+            </div>
+
+            <div class="btn-row" style="margin-top:24px">
+              <button class="btn" onclick="openBlessingScene()">解锁三位神的祝福</button>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    function startMaking(){
+      state.phase = 'step';
+      state.stepIndex = 0;
+      state.currentPick = null;
+      state.selections = {};
+      state.finalResult = null;
+      state.actionDone = false;
+      renderApp();
+    }
+
+    function selectOption(key, id){
+      const item = options[key].find(x => x.id === id);
+      state.currentPick = { ...item, key };
+      renderApp();
+    }
+
+    function confirmChoice(){
+      const key = getCurrentStep().key;
+      const previous = state.selections[key] || { reselectLeft: 1 };
+
+      state.selections[key] = {
+        choice: state.currentPick,
+        reselectLeft: previous.reselectLeft
+      };
+
+      state.currentPick = null;
+
+      if(state.stepIndex < 3){
+        state.stepIndex += 1;
+        renderApp();
+      }else{
+        state.phase = 'verdict';
+        state.finalResult = computeFinalResult();
+        renderApp();
+      }
+    }
+
+    function useReselect(){
+      const key = getCurrentStep().key;
+      const current = state.selections[key] || { reselectLeft: 1 };
+
+      if(current.reselectLeft > 0){
+        current.reselectLeft -= 1;
+        state.selections[key] = current;
+        state.currentPick = null;
+        renderApp();
+      }
+    }
+
+    function computeFinalResult(){
+      const picks = {
+        color: state.selections.color.choice,
+        flavor: state.selections.flavor.choice,
+        shape: state.selections.shape.choice,
+        cream: state.selections.cream.choice
+      };
+
+      const counts = {};
+      ATTRS.forEach(a => counts[a] = 0);
+
+      counts[picks.color.attr]++;
+      counts[picks.flavor.attr]++;
+      counts[picks.shape.attr]++;
+
+      const cream = picks.cream;
+      let randomAttr = null;
+
+      switch(cream.effect){
+        case 'cool-down':
+          counts['生气'] = Math.max(0, counts['生气'] - 2);
+          break;
+        case 'anti-poison':
+          counts['有毒'] = Math.max(0, counts['有毒'] - 2);
+          break;
+        case 'comma':
+          counts['生气'] += 1;
+          counts['有毒'] += 1;
+          break;
+        case 'crazy-fly':
+          counts['起飞'] += 3;
+          break;
+        case 'random':
+          randomAttr = ATTRS[Math.floor(randomSeeded(171) * ATTRS.length)];
+          counts[randomAttr] += 2;
+          break;
+      }
+
+      if(counts['有毒'] > 0 && counts['有毒'] % 2 === 0){
+        counts['有毒'] = 0;
+      }
+
+      let finalAttr = '开心';
+
+      if(counts['有毒'] > 0){
+        finalAttr = '有毒';
+      }else if(counts['生气'] >= 2){
+        finalAttr = '生气';
+      }else if(counts['起飞'] >= 2){
+        finalAttr = '起飞';
+      }else{
+        const priority = ['祝福','治愈','冷静','开心','起飞','生气','有毒'];
+        finalAttr = priority.sort((a,b) => counts[b] - counts[a])[0];
+      }
+
+      const msgMap = {
+        '有毒':'这是一块合格的 22 岁生日蛋糕。它不一定安全，但一定值得记住。',
+        '生气':'这块蛋糕脾气不小，但它至少诚实。它知道什么不该被随便对待。',
+        '起飞':'这不是一块会乖乖待在盘子里的蛋糕。它准备带 CC 绕着今晚飞一圈。',
+        '冷静':'这块蛋糕适合深夜、适合呼吸，也适合把愿望说清楚。',
+        '治愈':'这块蛋糕不会大声讲话，但它会慢慢把心里打结的地方解开。',
+        '祝福':'这块蛋糕像一盏认真亮着的小灯，适合把生日愿望轻轻点亮。',
+        '开心':'这块蛋糕不负责正确，只负责把今天变得更可爱一点。'
+      };
+
+      return {
+        finalAttr,
+        counts,
+        randomAttr,
+        items:picks,
+        message:msgMap[finalAttr]
+      };
+    }
+
+    function getActionInfo(attr){
+      if(attr === '有毒'){
+        return {
+          button:'领取魔法解药',
+          img:'./assets/magic-items/magic-bottle.png',
+          alt:'magic bottle',
+          result:'已领取。CC 已收到魔法解药，中毒值清零，实验继续。'
+        };
+      }
+
+      if(attr === '生气'){
+        return {
+          button:'让女巫戳一下',
+          img:'',
+          alt:'',
+          result:'女巫已戳，生气值 -999，CC 恢复正常，并获得一块榴莲酥。'
+        };
+      }
+
+      if(attr === '起飞'){
+        return {
+          button:'领取光轮2000',
+          img:'./assets/cake-shapes/nimbus2000.png',
+          alt:'nimbus2000',
+          result:'已美美起飞。光轮 2000 已发放，CC 可以从蛋糕上方起飞，绕 B612 星球三圈。'
+        };
+      }
+
+      return {
+        button:'收下这份蛋糕判词',
+        img:'',
+        alt:'',
+        result:'已收下。今晚的蛋糕判词已经成立，可以继续领取神的祝福。'
+      };
+    }
+
+    function triggerAction(){
+      state.actionDone = true;
+      renderApp();
+    }
+
+    function openBlessingScene(){
+      document.getElementById('blessingScene').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function openCakeScene(){
+      document.getElementById('blessingScene').classList.add('hidden');
+      document.getElementById('cakeScene').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      buildCakeParticles();
+      buildCandles();
+      buildFireworks();
+    }
+
+    function buildCakeParticles(){
+      const cake = document.getElementById('magicCake');
+      cake.querySelectorAll('.spark-particle').forEach(x => x.remove());
+
+      const particles = 36;
+
+      for(let i = 0; i < particles; i++){
+        const s = document.createElement('span');
+        s.className = 'spark-particle';
+        s.style.left = (50 + Math.cos(i / particles * Math.PI * 2) * (160 + (i % 6) * 18)) + '%';
+        s.style.top = (50 + Math.sin(i / particles * Math.PI * 2) * (18 + (i % 4) * 10)) + '%';
+        s.style.animationDelay = (i * .12) + 's';
+        cake.appendChild(s);
+      }
+    }
+
+    function buildCandles(){
+      const cake = document.getElementById('magicCake');
+      cake.querySelectorAll('.candle').forEach(x => x.remove());
+
+      const positions = [];
+
+      for(let i = 0; i < 10; i++){
+        positions.push({x:135 + i * 22, y:314});
+      }
+
+      for(let i = 0; i < 7; i++){
+        positions.push({x:190 + i * 22, y:210});
+      }
+
+      for(let i = 0; i < 5; i++){
+        positions.push({x:235 + i * 22, y:118});
+      }
+
+      positions.slice(0,22).forEach((p) => {
+        const c = document.createElement('div');
+        c.className = 'candle';
+        c.style.left = p.x + 'px';
+        c.style.top = p.y + 'px';
+
+        const flame = document.createElement('span');
+        flame.className = 'flame';
+
+        c.appendChild(flame);
+        cake.appendChild(c);
+      });
+    }
+
+    function buildFireworks(){
+      const fw = document.getElementById('fireworksLayer');
+      fw.innerHTML = '';
+
+      const coords = [
+        [16,18],[28,34],[44,22],[58,15],[72,30],[86,18],
+        [22,62],[36,74],[52,68],[68,78],[82,64]
+      ];
+
+      coords.forEach((p, i) => {
+        const el = document.createElement('div');
+        el.className = 'firework';
+        el.style.left = p[0] + '%';
+        el.style.top = p[1] + '%';
+        el.style.animationDelay = (i * .2) + 's';
+        fw.appendChild(el);
+      });
+    }
+
+    function blowCandles(){
+      const cake = document.getElementById('magicCake');
+      cake.classList.add('cake-extinguished');
+
+      document.getElementById('cakeMainTitle').textContent = 'CC 22岁生日快乐！';
+      document.getElementById('cakeSubtitle').textContent = '盛大的烟火雨和彩带正在为 CC 庆祝。';
+
+      const fw = document.getElementById('fireworksLayer');
+      fw.classList.add('active');
+
+      document.getElementById('wishBtn').disabled = true;
+      document.getElementById('wishBtn').style.opacity = '.75';
+
+      setTimeout(() => {
+        document.getElementById('wishText').classList.add('show');
+      }, 7000);
+    }
+
+    function createCurtainSparkles(){
+      const box = document.getElementById('curtainSparkles');
+
+      const coords = [
+        [12,18],[22,26],[34,16],[48,22],[56,14],[64,28],[78,19],[88,24],
+        [18,58],[32,46],[46,62],[54,48],[68,56],[82,44],[74,68],[26,72]
+      ];
+
+      coords.forEach((c, i) => {
+        const s = document.createElement('span');
+        s.style.left = c[0] + '%';
+        s.style.top = c[1] + '%';
+        s.style.animationDelay = (i * .13) + 's';
+        box.appendChild(s);
+      });
+    }
+
+    function init(){
+      state.todaySpecial = pickTodaySpecial();
+      renderApp();
+      createCurtainSparkles();
+
+      setTimeout(() => {
+        const curtain = document.getElementById('curtainOverlay');
+        curtain.style.pointerEvents = 'none';
+      }, 3500);
+
+      setTimeout(() => {
+        const curtain = document.getElementById('curtainOverlay');
+        curtain.style.opacity = '0';
+        curtain.style.transition = 'opacity .6s ease';
+      }, 6600);
+
+      setTimeout(() => {
+        const curtain = document.getElementById('curtainOverlay');
+        if(curtain) curtain.remove();
+      }, 7400);
+    }
+
+    init();
+  </script>
+</body>
+</html>
