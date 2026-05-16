@@ -1,0 +1,1774 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Gate03 | CC's Bakery Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Noto+Serif+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#020607;
+  --panel:rgba(9,18,23,.72);
+  --panel2:rgba(19,14,33,.62);
+  --line:rgba(129,216,208,.22);
+  --line2:rgba(216,180,254,.26);
+  --cream:#fff2dc;
+  --muted:rgba(255,242,220,.62);
+  --tiffany:#81D8D0;
+  --gold:#F0D899;
+  --purple:#D8B4FE;
+  --pink:#E9B7C7;
+  --red:#ff7777;
+  --shadow:0 28px 120px rgba(0,0,0,.58);
+}
+
+*{
+  box-sizing:border-box;
+}
+
+html,body{
+  margin:0;
+  min-height:100%;
+  background:var(--bg);
+  color:var(--cream);
+  font-family:'Noto Serif SC',serif;
+  overflow-x:hidden;
+}
+
+body{
+  background:
+    radial-gradient(circle at 18% 8%,rgba(129,216,208,.10),transparent 32%),
+    radial-gradient(circle at 82% 22%,rgba(216,180,254,.10),transparent 34%),
+    radial-gradient(circle at 50% 100%,rgba(240,216,153,.06),transparent 34%),
+    #020607;
+}
+
+a{
+  color:inherit;
+  text-decoration:none;
+}
+
+button{
+  font:inherit;
+  color:var(--cream);
+  cursor:pointer;
+}
+
+.bgStars{
+  position:fixed;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  opacity:.58;
+  background-image:
+    radial-gradient(circle,rgba(255,242,220,.42) 0 1px,transparent 1.7px),
+    radial-gradient(circle,rgba(129,216,208,.24) 0 1px,transparent 1.8px),
+    radial-gradient(circle,rgba(216,180,254,.22) 0 1px,transparent 1.8px);
+  background-size:130px 130px,210px 210px,280px 280px;
+  background-position:18px 20px,90px 45px,150px 110px;
+  animation:starDrift 28s linear infinite;
+}
+
+@keyframes starDrift{
+  to{
+    background-position:18px 150px,90px 255px,150px 390px;
+  }
+}
+
+.bgGlow{
+  position:fixed;
+  inset:-26%;
+  z-index:0;
+  pointer-events:none;
+  background:conic-gradient(
+    from 20deg,
+    transparent,
+    rgba(129,216,208,.08),
+    transparent,
+    rgba(216,180,254,.13),
+    transparent,
+    rgba(240,216,153,.08),
+    transparent
+  );
+  filter:blur(70px);
+  opacity:.75;
+  animation:slowSpin 34s linear infinite;
+}
+
+@keyframes slowSpin{
+  to{
+    transform:rotate(360deg);
+  }
+}
+
+/* Curtain */
+.curtain{
+  position:fixed;
+  inset:0;
+  z-index:999;
+  display:flex;
+  pointer-events:none;
+  overflow:hidden;
+  animation:curtainGone .9s linear 7.1s forwards;
+}
+
+.curtain:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:3;
+  pointer-events:none;
+  background-image:
+    radial-gradient(circle,rgba(255,242,220,.95) 0 1px,transparent 2px),
+    radial-gradient(circle,rgba(216,180,254,.85) 0 1px,transparent 2px),
+    radial-gradient(circle,rgba(129,216,208,.75) 0 1px,transparent 2px),
+    radial-gradient(circle,rgba(240,216,153,.85) 0 1px,transparent 2px);
+  background-size:120px 120px,170px 170px,220px 220px,280px 280px;
+  background-position:20px 30px,80px 90px,130px 40px,220px 120px;
+  opacity:0;
+  filter:drop-shadow(0 0 8px rgba(255,242,220,.7));
+  animation:curtainSparkle 5.2s linear .6s forwards;
+}
+
+.curtain:after{
+  content:"CC’s Bakery Lab";
+  position:absolute;
+  z-index:4;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  font-family:'Noto Serif SC','Cormorant Garamond',serif;
+  font-weight:700;
+  font-size:clamp(44px,6.4vw,96px);
+  letter-spacing:.02em;
+  color:rgba(255,242,220,.96);
+  text-shadow:0 0 22px rgba(255,242,220,.18),0 0 54px rgba(216,180,254,.30);
+  animation:curtainTitle 4.6s linear forwards;
+
+  white-space:nowrap;
+  max-width:92vw;
+  overflow:hidden;
+  text-overflow:clip;
+}
+
+.curtain-left,
+.curtain-right{
+  width:50%;
+  height:100%;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(122,14,78,.50) 0 18px,
+      rgba(54,0,43,.74) 18px 36px
+    ),
+    radial-gradient(circle at 50% 45%,rgba(255,242,220,.05),transparent 38%),
+    linear-gradient(180deg,#260022,#050007);
+  box-shadow:inset 0 0 140px rgba(0,0,0,.78);
+  animation-duration:3.2s;
+  animation-delay:3.8s;
+  animation-fill-mode:forwards;
+  animation-timing-function:linear;
+  will-change:transform;
+}
+
+.curtain-left{
+  animation-name:openLeft;
+}
+
+.curtain-right{
+  animation-name:openRight;
+}
+
+@keyframes openLeft{
+  from{
+    transform:translateX(0);
+  }
+  to{
+    transform:translateX(-104%);
+  }
+}
+
+@keyframes openRight{
+  from{
+    transform:translateX(0);
+  }
+  to{
+    transform:translateX(104%);
+  }
+}
+
+@keyframes curtainTitle{
+  0%,62%{
+    opacity:1;
+    filter:blur(0);
+    transform:translate(-50%,-50%) scale(1);
+  }
+  78%{
+    opacity:.35;
+    filter:blur(5px);
+    transform:translate(-50%,-50%) scale(1.015);
+  }
+  100%{
+    opacity:0;
+    filter:blur(14px);
+    transform:translate(-50%,-50%) scale(1.035);
+  }
+}
+
+@keyframes curtainSparkle{
+  0%{
+    opacity:0;
+    transform:translateY(0) scale(1);
+  }
+  18%{
+    opacity:.55;
+  }
+  55%{
+    opacity:.9;
+  }
+  100%{
+    opacity:0;
+    transform:translateY(-90px) scale(1.08);
+    background-position:20px -90px,80px -80px,130px -130px,220px -120px;
+  }
+}
+
+@keyframes curtainGone{
+  to{
+    opacity:0;
+    visibility:hidden;
+  }
+}
+
+.page{
+  position:relative;
+  z-index:2;
+  max-width:1600px;
+  margin:0 auto;
+  padding:34px 30px 90px;
+  opacity:0;
+  animation:pageIn 1.25s ease 6.95s forwards;
+}
+
+@keyframes pageIn{
+  from{
+    opacity:0;
+    filter:blur(10px);
+    transform:translateY(8px);
+  }
+  to{
+    opacity:1;
+    filter:none;
+    transform:none;
+  }
+}
+
+.topbar{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:22px;
+  margin-bottom:28px;
+}
+
+.topTitle{
+  border:1px solid var(--line);
+  background:linear-gradient(145deg,rgba(13,31,32,.72),rgba(4,8,12,.78));
+  box-shadow:var(--shadow);
+  border-radius:30px;
+  padding:22px 26px;
+  min-width:min(560px,90vw);
+  backdrop-filter:blur(24px);
+}
+
+.kicker{
+  letter-spacing:.48em;
+  text-transform:uppercase;
+  color:rgba(255,242,220,.50);
+  font-weight:700;
+  font-size:12px;
+  height:16px;
+  display:flex;
+  align-items:center;
+}
+
+.topTitle h1{
+  font-family:'Noto Serif SC',serif;
+  font-size:clamp(36px,4.1vw,56px);
+  line-height:1.08;
+  margin:12px 0 2px;
+  font-weight:700;
+  letter-spacing:.01em;
+}
+
+.topTitle p{
+  display:none;
+}
+
+.backBtn{
+  border:1px solid rgba(255,242,220,.16);
+  background:rgba(255,255,255,.045);
+  border-radius:999px;
+  padding:16px 24px;
+  backdrop-filter:blur(16px);
+  transition:.25s;
+}
+
+.backBtn:hover{
+  border-color:rgba(240,216,153,.45);
+  transform:translateY(-1px);
+}
+
+.layout{
+  display:grid;
+  grid-template-columns:390px minmax(0,1fr);
+  gap:22px;
+  align-items:start;
+}
+
+.oracle,
+.lab{
+  border-radius:30px;
+  background:linear-gradient(145deg,var(--panel2),rgba(3,7,10,.78));
+  border:1px solid var(--line2);
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(24px);
+}
+
+.oracle{
+  padding:28px;
+  position:sticky;
+  top:24px;
+  min-height:680px;
+}
+
+.oracleTitle{
+  font-family:'Cormorant Garamond',serif;
+  font-size:40px;
+  line-height:1.12;
+  margin:18px 0 24px;
+  font-weight:500;
+  min-height:48px;
+  display:flex;
+  align-items:flex-end;
+}
+
+.dateBox{
+  background:linear-gradient(90deg,rgba(216,180,254,.13),rgba(129,216,208,.05));
+  border-left:3px solid rgba(216,180,254,.82);
+  border-radius:0 18px 18px 0;
+  padding:18px 20px;
+  line-height:1.9;
+  color:rgba(255,242,220,.86);
+  font-size:16px;
+}
+
+.dateBox b{
+  color:#d8b4fe;
+  text-shadow:0 0 18px rgba(216,180,254,.35);
+}
+
+.statusBox{
+  margin-top:22px;
+  padding:18px;
+  border-radius:20px;
+  background:rgba(0,0,0,.22);
+  border:1px solid rgba(255,255,255,.08);
+  line-height:2;
+  font-size:16px;
+}
+
+.statusBox b{
+  color:var(--gold);
+}
+
+.lab{
+  padding:32px;
+  min-height:760px;
+  overflow:hidden;
+}
+
+.introRitual{
+  position:relative;
+  border-radius:28px;
+  padding:36px;
+  background:
+    radial-gradient(circle at 60% 20%,rgba(216,180,254,.20),transparent 32%),
+    linear-gradient(145deg,rgba(12,20,25,.88),rgba(20,11,28,.78));
+  border:1px solid rgba(216,180,254,.28);
+  box-shadow:0 0 70px rgba(216,180,254,.08);
+  overflow:hidden;
+}
+
+.introRitual:before{
+  content:'';
+  position:absolute;
+  inset:-50%;
+  background:conic-gradient(
+    from 0deg,
+    transparent,
+    rgba(129,216,208,.12),
+    transparent,
+    rgba(240,216,153,.10),
+    transparent,
+    rgba(216,180,254,.14),
+    transparent
+  );
+  animation:slowSpin 18s linear infinite;
+  filter:blur(18px);
+  opacity:.8;
+}
+
+.introRitual>*{
+  position:relative;
+  z-index:1;
+}
+
+.introRitual h2{
+  font-family:'Cormorant Garamond',serif;
+  font-size:46px;
+  line-height:1;
+  margin:10px 0 18px;
+}
+
+.introRitual p{
+  font-size:18px;
+  line-height:2;
+  color:rgba(255,242,220,.78);
+  max-width:920px;
+}
+
+.featuredGold{
+  display:inline-block;
+  margin-top:8px;
+  font-weight:700;
+  background:linear-gradient(90deg,#fff2dc,#f0d899,#d8b46a,#fff2dc);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  text-shadow:0 0 26px rgba(240,216,153,.18);
+}
+
+.startBtn,
+.primaryBtn,
+.minorBtn{
+  border-radius:999px;
+  border:1px solid rgba(255,242,220,.18);
+  padding:14px 22px;
+  background:rgba(255,255,255,.05);
+  backdrop-filter:blur(16px);
+  transition:.24s;
+}
+
+.startBtn,
+.primaryBtn{
+  margin-top:24px;
+  background:linear-gradient(135deg,rgba(129,216,208,.22),rgba(240,216,153,.14));
+  border-color:rgba(129,216,208,.42);
+}
+
+.startBtn:hover,
+.primaryBtn:hover,
+.minorBtn:hover{
+  transform:translateY(-1px);
+  border-color:rgba(240,216,153,.46);
+  box-shadow:0 0 26px rgba(240,216,153,.08);
+}
+
+.revealActions .primaryBtn,
+.revealActions .minorBtn{
+  margin-top:0;
+  padding:12px 22px;
+  border-radius:999px;
+  background:rgba(255,255,255,.045);
+  border:1px solid rgba(255,242,220,.18);
+  box-shadow:none;
+  min-width:180px;
+  text-align:center;
+}
+
+.revealActions .primaryBtn{
+  background:linear-gradient(135deg,rgba(129,216,208,.16),rgba(216,180,254,.10));
+  border-color:rgba(129,216,208,.32);
+}
+
+.revealActions .minorBtn{
+  background:rgba(255,255,255,.035);
+  border-color:rgba(216,180,254,.28);
+  color:rgba(255,242,220,.82);
+}
+
+.step{
+  display:none;
+}
+
+.step.active{
+  display:block;
+  animation:fadeUp .45s ease both;
+}
+
+@keyframes fadeUp{
+  from{
+    opacity:0;
+    transform:translateY(12px);
+  }
+  to{
+    opacity:1;
+    transform:none;
+  }
+}
+
+.stepHead{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:18px;
+  margin-bottom:20px;
+}
+
+.step h2{
+  font-family:'Cormorant Garamond',serif;
+  font-size:40px;
+  line-height:1.12;
+  margin:0;
+  min-height:48px;
+  display:flex;
+  align-items:flex-end;
+}
+
+.stepDesc{
+  color:rgba(255,242,220,.62);
+  line-height:1.8;
+  max-width:760px;
+}
+
+.cards{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:16px;
+}
+
+.cards.creamGrid{
+  grid-template-columns:1fr;
+  align-items:stretch;
+  gap:14px;
+  max-width:980px;
+}
+
+.optionCard{
+  position:relative;
+  min-height:170px;
+  border-radius:24px;
+  padding:18px;
+  background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.018));
+  border:1px solid rgba(255,242,220,.10);
+  overflow:hidden;
+  cursor:pointer;
+  transition:.25s ease;
+}
+
+.optionCard:before{
+  content:'';
+  position:absolute;
+  inset:-30%;
+  background:
+    radial-gradient(circle at 20% 10%,rgba(129,216,208,.12),transparent 30%),
+    radial-gradient(circle at 80% 90%,rgba(216,180,254,.12),transparent 32%);
+  opacity:0;
+  transition:.25s;
+}
+
+.optionCard:hover{
+  transform:translateY(-4px);
+  border-color:rgba(240,216,153,.34);
+  box-shadow:0 18px 60px rgba(0,0,0,.28);
+}
+
+.optionCard:hover:before{
+  opacity:1;
+}
+
+.optionCard.selected{
+  border-color:rgba(240,216,153,.78);
+  box-shadow:0 0 0 1px rgba(240,216,153,.22),0 24px 80px rgba(0,0,0,.38);
+}
+
+.optionCard .name{
+  position:relative;
+  font-size:24px;
+  line-height:1.35;
+  margin-bottom:12px;
+}
+
+.optionCard .teaser{
+  position:relative;
+  color:rgba(255,242,220,.58);
+  font-size:14px;
+  line-height:1.75;
+}
+
+.swatch{
+  position:relative;
+  height:70px;
+  border-radius:18px;
+  margin-bottom:14px;
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow:inset 0 0 30px rgba(255,255,255,.06);
+}
+
+.shapeImg{
+  position:relative;
+  width:100%;
+  height:172px;
+  object-fit:cover;
+  object-position:center center;
+  background:rgba(0,0,0,.18);
+  border-radius:18px;
+  margin-bottom:12px;
+  border:1px solid rgba(255,255,255,.08);
+  padding:0;
+  display:block;
+}
+
+.step .optionCard:has(.shapeImg){
+  min-height:340px;
+}
+
+.step .optionCard:has(.shapeImg) .name{
+  margin-top:14px;
+}
+
+.creamNo{
+  position:absolute;
+  left:22px;
+  top:50%;
+  transform:translateY(-50%);
+  font-family:'Cormorant Garamond',serif;
+  font-size:48px;
+  color:rgba(240,216,153,.42);
+  line-height:1;
+  min-width:58px;
+  text-align:center;
+}
+
+.creamGrid .optionCard{
+  min-height:108px;
+  padding:24px 30px 24px 108px;
+  display:grid;
+  grid-template-columns:minmax(260px,360px) 1fr;
+  align-items:center;
+  column-gap:30px;
+}
+
+.creamGrid .optionCard .name{
+  font-size:28px;
+  line-height:1.18;
+  white-space:nowrap;
+  letter-spacing:-.02em;
+  margin:0;
+}
+
+.creamGrid .optionCard .teaser{
+  font-size:15px;
+  line-height:1.85;
+  margin-top:0;
+  max-width:none;
+  color:rgba(255,242,220,.62);
+}
+
+.revealBox{
+  display:none;
+  margin-top:22px;
+  padding:22px;
+  border-radius:24px;
+  background:linear-gradient(135deg,rgba(216,180,254,.15),rgba(129,216,208,.08));
+  border:1px solid rgba(216,180,254,.26);
+  line-height:1.9;
+}
+
+.revealBox.show{
+  display:block;
+  animation:reveal .5s ease both;
+}
+
+@keyframes reveal{
+  from{
+    opacity:0;
+    filter:blur(8px);
+    transform:scale(.98);
+  }
+  to{
+    opacity:1;
+    filter:none;
+    transform:none;
+  }
+}
+
+.revealTitle{
+  font-size:22px;
+  color:var(--gold);
+  margin-bottom:8px;
+}
+
+.revealActions{
+  display:flex;
+  gap:14px;
+  flex-wrap:wrap;
+  margin-top:18px;
+  align-items:center;
+}
+
+.progressDots{
+  display:flex;
+  gap:8px;
+  margin-bottom:24px;
+}
+
+.dot{
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background:rgba(255,255,255,.12);
+}
+
+.dot.done{
+  background:var(--tiffany);
+  box-shadow:0 0 16px rgba(129,216,208,.6);
+}
+
+.dot.now{
+  background:var(--gold);
+  box-shadow:0 0 16px rgba(240,216,153,.7);
+}
+
+.resultBox,
+.finalCake{
+  display:none;
+  margin-top:28px;
+  border-radius:28px;
+  background:linear-gradient(145deg,rgba(9,18,23,.82),rgba(18,11,29,.78));
+  border:1px solid rgba(255,242,220,.12);
+  padding:30px;
+  box-shadow:var(--shadow);
+}
+
+.resultBox.show,
+.finalCake.show{
+  display:block;
+  animation:fadeUp .5s ease both;
+}
+
+.resultTitle{
+  font-family:'Cormorant Garamond',serif;
+  font-size:48px;
+  line-height:1;
+  margin-bottom:18px;
+}
+
+.resultText{
+  line-height:2;
+  color:rgba(255,242,220,.82);
+}
+
+.magicItem{
+  margin:18px 0 6px;
+  display:none;
+  align-items:center;
+  gap:16px;
+}
+
+.magicItem.show{
+  display:flex;
+}
+
+.magicItem img{
+  width:86px;
+  height:86px;
+  object-fit:contain;
+  filter:drop-shadow(0 0 28px rgba(216,180,254,.45));
+}
+
+.gods{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px;
+  margin-top:26px;
+}
+
+.god{
+  padding:22px;
+  border-radius:22px;
+  background:rgba(255,255,255,.045);
+  border:1px solid rgba(255,255,255,.08);
+  line-height:1.85;
+}
+
+.god h3{
+  margin:0 0 10px;
+  color:var(--gold);
+}
+
+.cakeScene{
+  position:relative;
+  margin-top:24px;
+  border-radius:32px;
+  min-height:760px;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at center,rgba(216,180,254,.22),transparent 36%),
+    radial-gradient(circle at 50% 90%,rgba(129,216,208,.12),transparent 36%),
+    #030611;
+  border:1px solid rgba(129,216,208,.18);
+}
+
+.cakeScene:before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background-image:radial-gradient(circle,rgba(255,255,255,.72) 0 1px,transparent 1.8px);
+  background-size:52px 52px;
+  opacity:.28;
+  animation:starDrift 18s linear infinite;
+}
+
+.orbitRing{
+  position:absolute;
+  left:50%;
+  top:55%;
+  width:700px;
+  height:230px;
+  border:1px solid rgba(129,216,208,.22);
+  border-radius:50%;
+  transform:translate(-50%,-50%) rotate(-12deg);
+  box-shadow:0 0 70px rgba(129,216,208,.14);
+  animation:ring 8s linear infinite;
+}
+
+@keyframes ring{
+  to{
+    transform:translate(-50%,-50%) rotate(348deg);
+  }
+}
+
+.cake{
+  position:absolute;
+  left:50%;
+  bottom:105px;
+  transform:translateX(-50%);
+  width:min(560px,86vw);
+}
+
+.candles{
+  position:absolute;
+  left:50%;
+  top:-98px;
+  transform:translateX(-50%);
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:8px;
+  width:330px;
+}
+
+.candle{
+  width:10px;
+  height:42px;
+  border-radius:999px;
+  background:linear-gradient(180deg,#fff6ca,#f0b3ff);
+  position:relative;
+}
+
+.candle:before{
+  content:'';
+  position:absolute;
+  left:50%;
+  top:-15px;
+  width:13px;
+  height:18px;
+  transform:translateX(-50%);
+  border-radius:60% 40% 55% 45%;
+  background:#ffca55;
+  box-shadow:0 0 18px #ffca55,0 0 34px rgba(255,140,50,.7);
+  animation:flame .8s ease-in-out infinite alternate;
+}
+
+@keyframes flame{
+  to{
+    transform:translateX(-50%) scale(.82) rotate(5deg);
+  }
+}
+
+.candle.off:before{
+  opacity:0;
+}
+
+.layer{
+  margin:auto;
+  border-radius:28px;
+  background:linear-gradient(180deg,#fff2dc,#f0b3ff 58%,#9fe8df);
+  border:3px solid rgba(255,255,255,.35);
+  box-shadow:0 18px 70px rgba(0,0,0,.35),inset 0 0 36px rgba(255,255,255,.12);
+}
+
+.l3{
+  width:260px;
+  height:105px;
+}
+
+.l2{
+  width:390px;
+  height:120px;
+  margin-top:-18px;
+}
+
+.l1{
+  width:530px;
+  max-width:100%;
+  height:135px;
+  margin-top:-18px;
+}
+
+.cakeMsg{
+  position:absolute;
+  left:0;
+  right:0;
+  top:70px;
+  text-align:center;
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(42px,6vw,86px);
+  color:var(--cream);
+  text-shadow:0 0 38px rgba(240,216,153,.25);
+}
+
+.vfx{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  overflow:hidden;
+}
+
+.spark{
+  position:absolute;
+  border-radius:50%;
+  animation:boom 1.6s ease-out forwards;
+  box-shadow:0 0 18px currentColor;
+}
+
+@keyframes boom{
+  from{
+    opacity:1;
+    transform:translate(0,0) scale(1);
+  }
+  to{
+    opacity:0;
+    transform:translate(var(--x),var(--y)) scale(.25);
+  }
+}
+
+.confetti{
+  position:absolute;
+  animation:fall 3.4s cubic-bezier(.2,.8,.2,1) forwards;
+  border-radius:4px;
+}
+
+@keyframes fall{
+  from{
+    opacity:1;
+    transform:translateY(-20px) rotate(0);
+  }
+  to{
+    opacity:0;
+    transform:translateY(760px) rotate(var(--r));
+  }
+}
+
+.wish{
+  display:none;
+  margin-top:34px;
+  text-align:center;
+  font-size:26px;
+  line-height:2.25;
+  color:rgba(255,242,220,.92);
+}
+
+.wish.show{
+  display:block;
+}
+
+.wish span{
+  display:block;
+  opacity:0;
+  animation:lineIn .7s ease forwards;
+}
+
+.wish span:nth-child(1){animation-delay:.1s}
+.wish span:nth-child(2){animation-delay:.7s}
+.wish span:nth-child(3){animation-delay:1.3s}
+.wish span:nth-child(4){animation-delay:1.9s}
+.wish span:nth-child(5){animation-delay:2.5s}
+.wish span:nth-child(6){animation-delay:3.1s}
+.wish span:nth-child(7){animation-delay:3.7s}
+.wish span:nth-child(8){animation-delay:4.5s}
+.wish span:nth-child(9){animation-delay:5.1s}
+.wish span:nth-child(10){animation-delay:5.7s}
+.wish span:nth-child(11){animation-delay:6.3s}
+.wish span:nth-child(12){animation-delay:7.1s}
+.wish span:nth-child(13){animation-delay:7.7s}
+
+@keyframes lineIn{
+  from{
+    opacity:0;
+    transform:translateY(12px);
+    filter:blur(8px);
+  }
+  to{
+    opacity:1;
+    transform:none;
+    filter:none;
+  }
+}
+
+@media(max-width:1100px){
+  .layout{
+    grid-template-columns:1fr;
+  }
+
+  .oracle{
+    position:relative;
+    top:auto;
+    min-height:0;
+  }
+
+  .cards{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+
+  .cards.creamGrid{
+    grid-template-columns:1fr;
+  }
+
+  .creamGrid .optionCard{
+    grid-template-columns:1fr;
+    padding-left:96px;
+  }
+
+  .creamGrid .optionCard .name{
+    white-space:normal;
+  }
+
+  .gods{
+    grid-template-columns:1fr;
+  }
+
+  .topbar{
+    display:block;
+  }
+
+  .backBtn{
+    display:inline-block;
+    margin-top:16px;
+  }
+
+  .page{
+    padding:24px 16px 80px;
+  }
+
+  .lab{
+    padding:22px;
+  }
+
+  .cakeScene{
+    min-height:660px;
+  }
+}
+
+@media(max-width:640px){
+  .cards{
+    grid-template-columns:1fr;
+  }
+
+  .cards.creamGrid{
+    grid-template-columns:1fr;
+  }
+
+  .creamGrid .optionCard{
+    padding:22px 20px 22px 82px;
+    min-height:120px;
+  }
+
+  .creamNo{
+    left:18px;
+    font-size:40px;
+  }
+
+  .creamGrid .optionCard .name{
+    font-size:24px;
+  }
+
+  .topTitle h1{
+    font-size:34px;
+  }
+
+  .oracleTitle{
+    font-size:36px;
+  }
+
+  .step h2{
+    font-size:32px;
+  }
+
+  .resultTitle{
+    font-size:42px;
+  }
+
+  .optionCard{
+    min-height:150px;
+  }
+
+  .l1{
+    height:110px;
+  }
+
+  .l2{
+    width:330px;
+    height:105px;
+  }
+
+  .l3{
+    width:230px;
+    height:95px;
+  }
+
+  .cakeMsg{
+    top:42px;
+  }
+
+  .wish{
+    font-size:20px;
+  }
+
+  .curtain:after{
+    font-size:clamp(34px,10vw,54px);
+    white-space:nowrap;
+    max-width:92vw;
+  }
+}
+</style>
+</head>
+
+<body>
+<div class="bgStars"></div>
+<div class="bgGlow"></div>
+
+<div class="curtain">
+  <div class="curtain-left"></div>
+  <div class="curtain-right"></div>
+</div>
+
+<main class="page">
+  <header class="topbar">
+    <section class="topTitle">
+      <div class="kicker">GATE 03 · SURPRISE</div>
+      <h1>CC’s Bakery Lab | 魔法厨房实验室</h1>
+      <p></p>
+    </section>
+    <a class="backBtn" href="./index.html">返回 Starport</a>
+  </header>
+
+  <section class="layout">
+    <aside class="oracle">
+      <div class="kicker">MAGICAL NOTICE</div>
+      <div class="oracleTitle">Tonight’s Cake Spell</div>
+      <div class="dateBox" id="dateInfo"></div>
+      <div class="statusBox" id="statusBox">
+        <b>实验尚未开始。</b><br>
+        每一步都有 1 次重选机会。<br>
+        属性只会在选择后显示。
+      </div>
+    </aside>
+
+    <section class="lab">
+      <div class="progressDots" id="dots"></div>
+
+      <section class="introRitual" id="intro">
+        <div class="kicker">RPG SETUP · BEFORE BAKING</div>
+        <h2>请阅读魔法烘焙规则</h2>
+        <p>
+          这里不是普通蛋糕店。<br>
+          每一种材料都有隐藏属性：开心、治愈、起飞、冷静、有毒、祝福、生气......<br>
+          但每一种材料没有绝对的好坏：魔法之下能以毒攻毒，也能解锁意外惊喜......有时候危险越大，惊喜越大。<br>
+          每一步选择后，系统会显示属性；如果想更换材料，可以使用 1 次重选机会。<br><br>
+          <b id="featuredText" class="featuredGold"></b>
+        </p>
+        <button class="startBtn" onclick="startLab()">开始制作</button>
+      </section>
+
+      <section class="step" id="step0"></section>
+      <section class="step" id="step1"></section>
+      <section class="step" id="step2"></section>
+      <section class="step" id="step3"></section>
+
+      <section class="resultBox" id="resultBox">
+        <div class="kicker">CAKE VERDICT</div>
+        <div class="resultTitle">蛋糕判词生成中</div>
+        <div class="resultText" id="resultText"></div>
+        <div class="magicItem" id="magicItem">
+          <img id="magicItemImg" src="" alt="magic item">
+          <span id="magicItemText"></span>
+        </div>
+        <div id="resultActions"></div>
+        <div class="gods">
+          <div class="god">
+            <h3>毒蘑菇之神</h3>
+            不要害怕有毒。<br>
+            有些毒只是世界不懂你的味道。
+          </div>
+          <div class="god">
+            <h3>生气河豚之神</h3>
+            生气不是坏事。<br>
+            它说明你还知道什么东西不该被随便对待。
+          </div>
+          <div class="god">
+            <h3>起飞萨摩耶之神</h3>
+            快乐的时候不要太克制。<br>
+            能起飞就起飞，光轮 2000 一直在等你。
+          </div>
+        </div>
+      </section>
+
+      <section class="finalCake" id="finalCake">
+        <div class="kicker">FINAL BIRTHDAY RITUAL</div>
+        <div class="resultTitle">魔法蛋糕制作成功</div>
+        <div class="resultText">请 CC 许愿、吹蜡烛。</div>
+
+        <div class="cakeScene" id="cakeScene">
+          <div class="orbitRing"></div>
+          <div class="cakeMsg" id="cakeMsg">魔法蛋糕制作成功</div>
+          <div class="cake">
+            <div class="candles" id="candles"></div>
+            <div class="layer l3"></div>
+            <div class="layer l2"></div>
+            <div class="layer l1"></div>
+          </div>
+          <div class="vfx" id="vfx"></div>
+        </div>
+
+        <button class="primaryBtn" onclick="blowCandles()">吹灭 22 根蜡烛</button>
+
+        <div class="wish" id="wish">
+          <span>22岁的CC</span>
+          <span>不需要变成一个完全正确的大人</span>
+          <span>而是获得一种新的魔法：</span>
+          <span>允许自己有毒</span>
+          <span>允许自己生气</span>
+          <span>也允许自己快乐到起飞。</span>
+          <span>最后仍然愿意认真地吃下一块属于自己的生日蛋糕。</span>
+          <span>祝CC 22 岁</span>
+          <span>仍然拥有被世界逗笑的能力</span>
+          <span>被朋友接住的勇气</span>
+          <span>被魔法偏爱的幸运。</span>
+          <span>最后的最后……</span>
+          <span>想做回女巫的小屁孩，随时都可以。</span>
+        </div>
+      </section>
+    </section>
+  </section>
+</main>
+
+<script>
+const state = {
+  step:-1,
+  selected:[null,null,null,null],
+  reselectLeft:[1,1,1,1],
+  revealed:false,
+  finalAttr:null
+};
+
+const colors = [
+  '#81D8D0',
+  '#F0D899',
+  '#FFF2DC',
+  '#E9B7C7',
+  '#B8FFF7',
+  '#9CC7FF',
+  '#D8B4FE',
+  '#ff7777'
+];
+
+const featured = [
+  '今日主推：月光小船冷静蛋糕。适合深夜，也适合认真许愿。',
+  '今日主推：萨摩耶治愈蛋糕。吃完以后会很想抱抱世界。',
+  '今日主推：毒蘑菇实验蛋糕。危险，但很传奇。',
+  '今日主推：光轮2000起飞蛋糕。建议系好围巾。',
+  '今日主推：大马士革玫瑰蛋糕。适合把祝福藏进奶油里。',
+  '今日主推：日落提拉米苏蛋糕。吃完以后会看到想看的那场日落。',
+  '今日主推：微仔快乐蛋糕。它的副作用是突然很想笑。'
+];
+
+function shuffleItems(arr){
+  const a = [...arr];
+  for(let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+const steps = [
+  {
+    title:'Step 1 · 选择颜色',
+    desc:'颜色是蛋糕的第一层咒语。它看起来只是颜色，其实会决定这块蛋糕的脾气。',
+    type:'color',
+    items:[
+      {name:'黑色蛋糕',attr:'有毒',teaser:'像午夜，也像女巫不愿解释的秘密。',swatch:'#050506'},
+      {name:'红色蛋糕',attr:'生气',teaser:'看起来很热闹，但可能会把情绪点燃。',swatch:'#9c151d'},
+      {name:'紫色蛋糕',attr:'起飞',teaser:'一看就像会乖乖待在盘子里。',swatch:'#6d38ff'},
+      {name:'绿色蛋糕',attr:'起飞',teaser:'有点怪，但怪得很有生命力。',swatch:'#1f9b67'},
+      {name:'金色蛋糕',attr:'祝福',teaser:'像生日愿望表面撒了一层金粉。',swatch:'#d6aa32'},
+      {name:'白色蛋糕',attr:'治愈',teaser:'像刚洗好的云，适合安静地吃一口。',swatch:'#f4f1e9'},
+      {name:'蓝色蛋糕',attr:'冷静',teaser:'适合把复杂的事情先放进冰箱。',swatch:'#2e5dff'},
+      {name:'粉色蛋糕',attr:'开心',teaser:'不是幼稚，是快乐不想假装成熟。',swatch:'#ff6bb3'}
+    ]
+  },
+  {
+    title:'Step 2 · 选择口味',
+    desc:'口味是真正容易踩雷的地方。越想点，越可能出事；越出事，越有故事。',
+    type:'flavor',
+    items:[
+      {name:'鱼腥草',attr:'有毒',teaser:'曾被魔法学院列入生日禁用植物，但总有人不信。'},
+      {name:'芹菜',attr:'有毒',teaser:'看起来健康，所以更可疑。'},
+      {name:'蛇形软糖',attr:'有毒',teaser:'它会在奶油里安静地盘成一个问号。'},
+      {name:'麦麦没有炸透的薯条',attr:'生气',teaser:'第一口没事，第二口开始想理论。'},
+      {name:'河豚刺身',attr:'生气',teaser:'情绪稳定的人吃了也会突然鼓起来。'},
+      {name:'烧焦棉花糖',attr:'生气',teaser:'甜是甜的，但脾气也是脆的。'},
+      {name:'猫山王榴莲',attr:'起飞',teaser:'打开盖子的瞬间，实验室开始倒计时。'},
+      {name:'日落提拉米苏',attr:'起飞',teaser:'吃完以后，会想把人生调成橘金色。'},
+      {name:'一点点红茶冰激凌',attr:'起飞',teaser:'杯壁会结霜，快乐会升空。'},
+      {name:'DQ奥利奥冰激凌',attr:'起飞',teaser:'浓到不像甜品，像一个起飞许可。'},
+      {name:'跳跳糖夹心',attr:'祝福',teaser:'咬下去的时候，愿望会在舌尖放烟花。'},
+      {name:'香浓可可',attr:'祝福',teaser:'适合写进冬天，也适合写进生日。'},
+      {name:'大马士革玫瑰酱',attr:'治愈',teaser:'清晨采下来的玫瑰，会把坏心情慢慢哄好。'},
+      {name:'意大利柠檬酱',attr:'治愈',teaser:'酸得明亮，像海边突然吹来的风。'},
+      {name:'黄油牡蛎',attr:'治愈',teaser:'听起来很怪，但有些怪东西很温柔。'},
+      {name:'椰子冻',attr:'冷静',teaser:'适合给过热的大脑降温。'},
+      {name:'花香蓝莓',attr:'冷静',teaser:'像把夜晚折起来，放进蓝色玻璃瓶。'},
+      {name:'冬日草莓',attr:'开心',teaser:'它会让人想起一些很轻、很亮的日子。'},
+      {name:'冰糖心苹果',attr:'开心',teaser:'咔嚓一口，宇宙都变脆了。'},
+      {name:'清晨豆浆',attr:'开心',teaser:'朴素，但会让人觉得今天还不错。'},
+      {name:'重庆面馆辣子鸡',attr:'开心',teaser:'不应该出现在蛋糕里，但出现了就很难拒绝。'},
+      {name:'舟山鳗鱼鲞',attr:'开心',teaser:'来自海风、太阳和非常离谱的快乐。'}
+    ]
+  },
+  {
+    title:'Step 3 · 选择图案',
+    desc:'图案不是装饰，是蛋糕的召唤阵。选中它，蛋糕就会开始长出自己的性格。',
+    type:'shape',
+    items:[
+      {name:'蘑菇',attr:'有毒',teaser:'它看起来无辜，但森林不这么认为。',img:'./assets/cake-shapes/mushroom.PNG'},
+      {name:'kitsune',attr:'生气',teaser:'狐狸知道太多秘密，所以很容易不爽。',img:'./assets/cake-shapes/kitsune.PNG'},
+      {name:'光轮2000',attr:'起飞',teaser:'不是装饰，是交通工具。',img:'./assets/cake-shapes/nimbus2000.PNG'},
+      {name:'小王子',attr:'祝福',teaser:'他会认真看一朵花，也会认真看一个人。',img:'./assets/cake-shapes/thelittleprince.PNG'},
+      {name:'玫瑰',attr:'祝福',teaser:'不一定最完美，但一定被认真浇过水。',img:'./assets/cake-shapes/rose.PNG'},
+      {name:'萨摩耶',attr:'治愈',teaser:'这不是图案，这是软乎乎的白色魔法。',img:'./assets/cake-shapes/samoyed.PNG'},
+      {name:'月光小船',attr:'冷静',teaser:'适合从今晚划到一条很远的河。',img:'./assets/cake-shapes/moonlightboat.PNG'},
+      {name:'微仔',attr:'开心',teaser:'它一出现，实验室就不再严肃。',img:'./assets/cake-shapes/weizai.PNG'}
+    ]
+  },
+  {
+    title:'Step 4 · 选择奶油',
+    desc:'奶油是最后一道封印。它不会提前说明自己会做什么，但它会悄悄改变最终命运。',
+    type:'cream',
+    items:[
+      {name:'地中海奶油',effect:'angry-2',teaser:'像海风一样宽容，适合给火气降温。'},
+      {name:'初春记忆奶油',effect:'toxic-2',teaser:'像春天刚开始时的光，会悄悄稀释危险。'},
+      {name:'yls逗号奶油',effect:'angry+toxic',teaser:'名字里有逗号，说明事情不会那么快结束。'},
+      {name:'CC一般不拿出来奶油',effect:'fly',teaser:'一般不拿出来。一拿出来，实验室会响警报。'},
+      {name:'女巫特调奶油',effect:'random',teaser:'女巫本人也不完全确定它会变成什么。'}
+    ]
+  }
+];
+
+function chinaParts(){
+  const parts = new Intl.DateTimeFormat('zh-CN',{
+    timeZone:'Asia/Shanghai',
+    year:'numeric',
+    month:'numeric',
+    day:'numeric'
+  }).formatToParts(new Date());
+
+  const o = {};
+  parts.forEach(p => {
+    o[p.type] = p.value;
+  });
+
+  return {
+    y:+o.year,
+    m:+o.month,
+    d:+o.day
+  };
+}
+
+function setupDate(){
+  const p = chinaParts();
+
+  let html = `今天是中国北京时间 <b>${p.y}年${p.m}月${p.d}日</b>。<br><br>`;
+
+  html += (p.m === 5 || p.m === 6)
+    ? '魔法原料已成熟，CC 可以选择制作并领取蛋糕。'
+    : '魔法原料还在生长……但偷偷开了后门，允许 CC 试吃一口（保密！）';
+
+  document.getElementById('dateInfo').innerHTML = html;
+}
+
+function renderDots(){
+  const dots = document.getElementById('dots');
+  dots.innerHTML = '';
+
+  for(let i = 0; i < 4; i++){
+    const d = document.createElement('span');
+    d.className = 'dot ' + (i < state.step ? 'done' : i === state.step ? 'now' : '');
+    dots.appendChild(d);
+  }
+}
+
+function startLab(){
+  document.getElementById('intro').style.display = 'none';
+  state.step = 0;
+  renderStep();
+  renderDots();
+  updateStatus('实验启动。<br>当前步骤：Step 1 · 选择颜色<br>本步骤重选机会：<b>1</b> 次');
+}
+
+function renderStep(){
+  const container = document.getElementById('step' + state.step);
+  const st = steps[state.step];
+
+  container.innerHTML = `
+    <div class="stepHead">
+      <div>
+        <div class="kicker">BAKING SEQUENCE</div>
+        <h2>${st.title}</h2>
+        <p class="stepDesc">${st.desc}</p>
+      </div>
+    </div>
+    <div class="cards"></div>
+    <div class="revealBox" id="reveal${state.step}"></div>
+  `;
+
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  container.classList.add('active');
+
+  const cards = container.querySelector('.cards');
+
+  if(st.type === 'cream'){
+    cards.classList.add('creamGrid');
+  }
+
+  const visibleItems = (st.type === 'flavor' || st.type === 'shape')
+    ? shuffleItems(st.items)
+    : st.items;
+
+  visibleItems.forEach((item,idx)=>{
+    const c = document.createElement('div');
+    c.className = 'optionCard';
+
+    let inner = '';
+
+    if(st.type === 'color'){
+      inner += `<div class="swatch" style="background:${item.swatch}"></div>`;
+    }
+
+    if(st.type === 'shape'){
+      inner += `<img class="shapeImg" src="${item.img}" onerror="this.style.display='none'">`;
+    }
+
+    inner += `<div class="name">${item.name}</div><div class="teaser">${item.teaser}</div>`;
+
+    if(st.type === 'cream'){
+      inner += `<div class="creamNo">${String(idx + 1).padStart(2,'0')}</div>`;
+    }
+
+    c.innerHTML = inner;
+    c.onclick = () => chooseItem(item,c);
+    cards.appendChild(c);
+  });
+}
+
+function chooseItem(item,card){
+  const st = steps[state.step];
+  state.selected[state.step] = item;
+  state.revealed = true;
+
+  card.parentElement.querySelectorAll('.optionCard').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+
+  const reveal = document.getElementById('reveal' + state.step);
+  let note = attrLine(item,st.type);
+
+  reveal.classList.add('show');
+  reveal.innerHTML = `
+    <div class="revealTitle">${note}</div>
+    <div class="revealActions">
+      <button class="primaryBtn" onclick="nextStep()">确认，进入下一步</button>
+      ${state.reselectLeft[state.step] > 0 ? '<button class="minorBtn" onclick="reselectStep()">使用本步骤 1 次重选机会</button>' : ''}
+    </div>
+  `;
+
+  updateStatus(`已选择：<b>${item.name}</b><br>当前步骤：${steps[state.step].title}<br>本步骤重选机会：<b>${state.reselectLeft[state.step]}</b> 次`);
+}
+
+function attrLine(item,type){
+  if(type === 'cream'){
+    return '这款奶油的效果已被封印，确认后才会进入最终结算。';
+  }
+
+  return `隐藏属性是：<b>${item.attr}</b>`;
+}
+
+function reselectStep(){
+  if(state.reselectLeft[state.step] <= 0) return;
+
+  state.reselectLeft[state.step]--;
+  state.selected[state.step] = null;
+
+  document.getElementById('reveal' + state.step).classList.remove('show');
+
+  document.querySelector('#step' + state.step + ' .cards')
+    .querySelectorAll('.optionCard')
+    .forEach(c => c.classList.remove('selected'));
+
+  updateStatus(`已使用本步骤重选机会。<br>请重新选择：${steps[state.step].title}<br>本步骤重选机会：<b>0</b> 次`);
+}
+
+function nextStep(){
+  if(!state.selected[state.step]) return;
+
+  if(state.step < 3){
+    state.step++;
+    renderStep();
+    renderDots();
+    updateStatus(`进入 ${steps[state.step].title}。<br>本步骤重选机会：<b>${state.reselectLeft[state.step]}</b> 次`);
+  }else{
+    renderDots();
+    makeCake();
+  }
+}
+
+function updateStatus(html){
+  document.getElementById('statusBox').innerHTML = html;
+}
+
+function makeCake(){
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+
+  let counts = {
+    有毒:0,
+    生气:0,
+    起飞:0,
+    祝福:0,
+    治愈:0,
+    冷静:0,
+    开心:0
+  };
+
+  for(let i = 0; i < 3; i++){
+    counts[state.selected[i].attr]++;
+  }
+
+  const cream = state.selected[3];
+
+  if(cream.effect === 'angry-2'){
+    counts['生气'] = Math.max(0,counts['生气'] - 2);
+  }
+
+  if(cream.effect === 'toxic-2'){
+    counts['有毒'] = Math.max(0,counts['有毒'] - 2);
+  }
+
+  if(cream.effect === 'angry+toxic'){
+    counts['生气']++;
+    counts['有毒']++;
+  }
+
+  if(cream.effect === 'fly'){
+    counts['起飞'] += 3;
+  }
+
+  if(cream.effect === 'random'){
+    const arr = ['有毒','生气','起飞','祝福','治愈','冷静','开心'];
+    counts[arr[Math.floor(Math.random() * arr.length)]]++;
+  }
+
+  let final = '开心';
+
+  if(counts['有毒'] > 0){
+    final = counts['有毒'] % 2 === 0 ? '百毒不侵' : '有毒';
+  }else if(counts['起飞'] >= 2){
+    final = '起飞';
+  }else if(counts['生气'] >= 2){
+    final = '生气';
+  }else if(counts['祝福'] >= 2){
+    final = '祝福';
+  }else if(counts['治愈'] >= 2){
+    final = '治愈';
+  }else if(counts['冷静'] >= 2){
+    final = '冷静';
+  }
+
+  state.finalAttr = final;
+
+  const box = document.getElementById('resultBox');
+  box.classList.add('show');
+
+  document.getElementById('resultText').innerHTML = `
+    CC 的魔法蛋糕最终属性是：<b>${final}</b>。<br><br>
+    颜色：${state.selected[0].name}<br>
+    口味：${state.selected[1].name}<br>
+    图案：${state.selected[2].name}<br>
+    奶油：${state.selected[3].name}<br><br>
+    蛋糕判词：这是一块合格的 22 岁生日蛋糕。它不一定安全，但一定值得记住。
+  `;
+
+  renderActions(final);
+  updateStatus(`蛋糕结算完成。<br>最终属性：<b>${final}</b>`);
+  box.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function renderActions(final){
+  const a = document.getElementById('resultActions');
+  a.innerHTML = '';
+
+  const item = document.getElementById('magicItem');
+  item.classList.remove('show');
+
+  if(final === '有毒'){
+    a.innerHTML = `<button class="primaryBtn" onclick="showBottle(this)">领取魔法解药</button>`;
+  }else if(final === '生气'){
+    a.innerHTML = `<button class="primaryBtn" onclick="this.textContent='女巫已戳，生气值 -999，CC 恢复正常，并获得一块榴莲酥。';setTimeout(showCake,600)">让女巫戳一下</button>`;
+  }else if(final === '起飞'){
+    a.innerHTML = `<button class="primaryBtn" onclick="flyMagic(this)">需要领取光轮2000才能飞翔</button>`;
+  }else{
+    a.innerHTML = `<button class="primaryBtn" onclick="showCake()">领取生日蛋糕</button>`;
+  }
+}
+
+function showBottle(btn){
+  btn.textContent = '已领取';
+
+  document.getElementById('magicItemImg').src = './assets/magic-items/magic-bottle.png';
+  document.getElementById('magicItemText').textContent = '魔法解药已发放。CC 暂时不会变成沉默蘑菇。';
+  document.getElementById('magicItem').classList.add('show');
+
+  setTimeout(showCake,900);
+}
+
+function flyMagic(btn){
+  btn.textContent = '已美美起飞';
+
+  burst(24);
+
+  document.getElementById('magicItemImg').src = './assets/magic-items/nimbus2000.png';
+  document.getElementById('magicItemText').textContent = '光轮 2000 已发放。CC 可以从蛋糕上方起飞，绕 B612 星球三圈。';
+  document.getElementById('magicItem').classList.add('show');
+
+  setTimeout(showCake,1000);
+}
+
+function showCake(){
+  document.getElementById('finalCake').classList.add('show');
+  document.getElementById('finalCake').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function candles(){
+  const wrap = document.getElementById('candles');
+
+  for(let i = 0; i < 22; i++){
+    const c = document.createElement('span');
+    c.className = 'candle';
+    wrap.appendChild(c);
+  }
+}
+
+function blowCandles(){
+  document.querySelectorAll('.candle').forEach(c => c.classList.add('off'));
+
+  document.getElementById('cakeMsg').textContent = 'CC 22岁生日快乐！';
+
+  const start = Date.now();
+
+  const timer = setInterval(()=>{
+    burst(42);
+    confetti(36);
+
+    if(Date.now() - start > 7000){
+      clearInterval(timer);
+      document.getElementById('wish').classList.add('show');
+      document.getElementById('wish').scrollIntoView({behavior:'smooth',block:'start'});
+    }
+  },260);
+}
+
+function burst(n){
+  const v = document.getElementById('vfx');
+  if(!v) return;
+
+  for(let i = 0; i < n; i++){
+    const s = document.createElement('span');
+    s.className = 'spark';
+
+    const x = 20 + Math.random() * 60;
+    const y = 12 + Math.random() * 55;
+
+    s.style.left = x + '%';
+    s.style.top = y + '%';
+
+    const ang = Math.random() * Math.PI * 2;
+    const dist = 80 + Math.random() * 260;
+
+    s.style.setProperty('--x',Math.cos(ang) * dist + 'px');
+    s.style.setProperty('--y',Math.sin(ang) * dist + 'px');
+
+    s.style.width = s.style.height = (4 + Math.random() * 10) + 'px';
+    s.style.color = colors[Math.floor(Math.random() * colors.length)];
+    s.style.background = 'currentColor';
+
+    v.appendChild(s);
+
+    setTimeout(()=>s.remove(),1700);
+  }
+}
+
+function confetti(n){
+  const v = document.getElementById('vfx');
+
+  for(let i = 0; i < n; i++){
+    const c = document.createElement('span');
+    c.className = 'confetti';
+
+    c.style.left = Math.random() * 100 + '%';
+    c.style.top = (-8 - Math.random() * 18) + '%';
+    c.style.width = (6 + Math.random() * 12) + 'px';
+    c.style.height = (14 + Math.random() * 32) + 'px';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.setProperty('--r',(360 + Math.random() * 900) + 'deg');
+
+    v.appendChild(c);
+
+    setTimeout(()=>c.remove(),3600);
+  }
+}
+
+function init(){
+  setupDate();
+  document.getElementById('featuredText').textContent = featured[Math.floor(Math.random() * featured.length)];
+  renderDots();
+  candles();
+}
+
+init();
+</script>
+</body>
+</html>
